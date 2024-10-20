@@ -9,7 +9,7 @@ Each engine is implemented in Java and demonstrates different AI strategies, suc
 
 ## Project Structure
 The repository is organized into four main folders, one for each game engine:
-- `8-puzzle/`: Contains the AI engine for solving the 8-puzzle game.
+- `EightPuzzleEngine/`: Contains the AI engine for solving the 8-puzzle game.
 
 ## Requirements
 - Java Development Kit (JDK) 8 or later
