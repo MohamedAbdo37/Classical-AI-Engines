@@ -10,9 +10,6 @@ Each engine is implemented in Java and demonstrates different AI strategies, suc
 ## Project Structure
 The repository is organized into four main folders, one for each game engine:
 - `8-puzzle/`: Contains the AI engine for solving the 8-puzzle game.
-- `Connect-4/`: Implements an AI engine for playing Connect-4.
-- `Chess/`: Houses the AI engine for playing Chess.
-- `Maze/`: Contains the AI engine for solving various maze configurations.
 
 ## Requirements
 - Java Development Kit (JDK) 8 or later
