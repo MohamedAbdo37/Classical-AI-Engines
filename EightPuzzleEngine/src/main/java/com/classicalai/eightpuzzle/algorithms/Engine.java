@@ -18,7 +18,7 @@ public abstract class Engine {
     /**
      * @return array of states from initial state to the goal state
      */
-    abstract EnvironmentState[] play();
+    public abstract EnvironmentState[] play();
 
 // Setters
     public void setSearchDepth(int searchDepth) {

@@ -3,6 +3,10 @@ package com.classicalai.eightpuzzle.environment;
 public class EnvironmentState {
 
     private EnvironmentState parentState;
+    private int emptyCellPosition;
+
+    public EnvironmentState(int[] state) {
+    }
 
     public EnvironmentState getParentState() {
         return parentState;
@@ -27,6 +31,14 @@ public class EnvironmentState {
 
     public EnvironmentState[] getChildren(){
         return new EnvironmentState[0];
+    }
+
+    public int getEmptyCellPosition() {
+        return emptyCellPosition;
+    }
+
+    public void setEmptyCellPosition(int emptyCellPosition) {
+        this.emptyCellPosition = emptyCellPosition;
     }
 }
 

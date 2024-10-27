@@ -3,6 +3,8 @@ module com.classicalai.eightpuzzle {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
+    requires java.desktop;
+//    requires org.jetbrains.annotations;
 
     opens com.classicalai.eightpuzzle to javafx.fxml;
     exports com.classicalai.eightpuzzle;
