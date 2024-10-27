@@ -32,4 +32,8 @@ public class EnvironmentState {
     public EnvironmentState[] getChildren() {
         return new EnvironmentState[0];
     }
+
+    public int getBoard() {
+        return board;
+    }
 }

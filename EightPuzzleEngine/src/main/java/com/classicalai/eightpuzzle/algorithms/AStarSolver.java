@@ -20,12 +20,13 @@ public class AStarSolver extends Engine {
     private int goalKey = 0;
     private String initialState;
     private String h;
-    private long gameTime;
+    private double gameTime;
     private int highestDepth;
 
     // constructor
-    public AStarSolver(String initialState, String h) {
-        this.initialState = initialState;
+    public AStarSolver(EnvironmentState initialState, String h) {
+        super(initialState);
+        this.initialState = boardToString((long)initialState.getBoard());
         this.h = h;
     }
 
@@ -34,7 +35,7 @@ public class AStarSolver extends Engine {
         search();
         super.setSearchDepth(getSearchDepth());
         super.setNodesExpanded(getNodesExpanded());
-        super.setRunningTime((double) getRunningTime());
+        super.setRunningTime(getRunningTime());
         return getPathToGoalAsEnvironmentStates();
     }
 
@@ -50,6 +51,7 @@ public class AStarSolver extends Engine {
                 pathEnvironmentStates[i].setParentState(pathEnvironmentStates[i - 1]);
 
         }
+        return pathEnvironmentStates;
     }
 
     // gets the depth of a certain node
@@ -116,8 +118,7 @@ public class AStarSolver extends Engine {
             default:
                 break;
         }
-        // System.out.println("Heuristic: " + (f - g) + " Depth: " + g + " Cost: "
-        // + getCost(f * bpd + Long.parseLong(board) * pd + parent * 10 + dir));
+
         // state: [cost|board|parent|dir]
         return f * bpd + Long.parseLong(board) * pd + parent * 10 + dir;
     }
@@ -260,13 +261,11 @@ public class AStarSolver extends Engine {
         return -1; // not found in either one
     }
 
-    ////////////////////////////
     private long getElemFromQ(PriorityQueue<Long> q, int index) {
         ArrayList<Long> arr = new ArrayList<>(q);
         return arr.get(index);
     }
 
-    ///////////////////////////
     private int searchFor(PriorityQueue<Long> q, long element) {
         ArrayList<Long> arr = new ArrayList<>(q);
         for (int i = 0; i < arr.size(); i++) {
@@ -276,21 +275,18 @@ public class AStarSolver extends Engine {
         return -1;
     }
 
-    ///////////////////////////
     private void update(PriorityQueue<Long> q, long newState, int index) {
         long oldState = getElemFromQ(q, index);
         q.remove(oldState);
         q.add(newState);
     }
 
-    ///////////////////////////
     public void printFrontier() {
         ArrayList<Long> arr = new ArrayList<>(frontier);
         for (int i = 0; i < arr.size(); i++)
             System.out.println(getCost(arr.get(i)));
         System.out.println("........................");
     }
-    //////////////////////////
 
     // updates the frontier if new cost is lesser
     private void updateInFront(long newState, int index) {
@@ -316,7 +312,6 @@ public class AStarSolver extends Engine {
                 updateInFront(prepareState(boardToString(upBoard), parentID, 3, h), temp);
             }
         }
-        // printFrontier();
     }
 
     // puts the new down state in frontier if not in visited or frontier lists
@@ -335,7 +330,6 @@ public class AStarSolver extends Engine {
                 updateInFront(prepareState(boardToString(downBoard), parentID, 4, h), temp);
             }
         }
-        // printFrontier();
 
     }
 
@@ -355,7 +349,6 @@ public class AStarSolver extends Engine {
                 updateInFront(prepareState(boardToString(leftBoard), parentID, 2, h), temp);
             }
         }
-        // printFrontier();
 
     }
 
@@ -375,7 +368,6 @@ public class AStarSolver extends Engine {
                 updateInFront(prepareState(boardToString(rightBoard), parentID, 1, h), temp);
             }
         }
-        // printFrontier();
 
     }
 
@@ -412,13 +404,11 @@ public class AStarSolver extends Engine {
 
         // start tracing
         while (!frontier.isEmpty()) {
-            // state = frontier.extractMin();
             state = frontier.poll();
-            // if (!frontier.isEmpty())
-            // System.out.println("Minimum state cost: " + getCost(frontier.peek()));
+
             int stateID = createId();
             visited.put(stateID, state);
-            // printVisited();
+
             // goal found and added to the visited hash map with key goalKey
             if (goalTest(state)) {
                 goalKey = stateID;
@@ -429,7 +419,6 @@ public class AStarSolver extends Engine {
             String board = boardToString(getBoard(state));
             // getting the palce of the empty slot
             int index = searchForEmptySlote(board);
-
             // start expanding the currnt state
             // child state after moving the empty slot up
             addUpChildState(board, index, stateID);
@@ -486,7 +475,7 @@ public class AStarSolver extends Engine {
         Stack<Integer> path = new Stack();
         long currentState = visited.get(goalKey);
         while (getParent(currentState) != 0) { // while the current state is not the root
-            path.push(getBoard(currentState));
+            path.push((int)getBoard(currentState));
             currentState = visited.get(getParent(currentState));
         }
         int[] pathArray = new int[path.size()];
@@ -513,7 +502,7 @@ public class AStarSolver extends Engine {
     }
 
     // get Game time
-    public long getRunningTime() {
+    public double getRunningTime() {
         return this.gameTime;
     }
 
