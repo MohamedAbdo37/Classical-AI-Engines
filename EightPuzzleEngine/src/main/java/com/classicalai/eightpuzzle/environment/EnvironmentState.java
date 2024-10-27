@@ -10,7 +10,10 @@ public class EnvironmentState {
     private int emptyCellPosition;
 
     public EnvironmentState(int[] state) {
-
+        this.board = 0;
+        for (int i = 0; i < 9; i++) {
+            this.board+= (int) (state[i] * Math.pow(10,i));
+        }
     }
 
     public EnvironmentState(int Board, int emptyCellPosition, EnvironmentState parent, int depth){

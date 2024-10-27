@@ -122,6 +122,7 @@ public class Controller implements Initializable {
             System.out.printf("Initial State: %s%n", Arrays.toString(state));
             this.setPuzzleBoard(state);
             this.selectEngin(state);
+            System.out.println(engine.getInitialState().getBoard());
             this.path = engine.play();
             toPathState(path);
             this.pathState.getItems().addAll(this.solution);
