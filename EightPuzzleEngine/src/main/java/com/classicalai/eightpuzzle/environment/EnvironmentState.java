@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class EnvironmentState {
 
     private int depth;
-    private int Board;
+    private int board;
     private EnvironmentState parentState;
     private int emptyCellPosition;
 
@@ -14,7 +14,7 @@ public class EnvironmentState {
     }
 
     public EnvironmentState(int Board, int emptyCellPosition, EnvironmentState parent, int depth){
-        this.Board = Board;
+        this.board = Board;
         this.emptyCellPosition = emptyCellPosition;
         this.parentState = parent ;
         this.depth = depth ;
@@ -38,7 +38,7 @@ public class EnvironmentState {
         return 0;
     }
 
-    public int[] toArray(){
+    public int[] toArray() {
         return new int[0];
     }
 
@@ -94,12 +94,8 @@ public class EnvironmentState {
         this.emptyCellPosition = emptyCellPosition;
     }
 
-    public int getBoard() {
-        return Board;
-    }
-
     public void setBoard(int board) {
-        Board = board;
+        this.board = board;
     }
 
     public int getDepth() {
@@ -108,6 +104,10 @@ public class EnvironmentState {
 
     public void setDepth(int depth) {
         this.depth = depth;
+    }
+
+    public int getBoard() {
+        return board;
     }
 }
 
