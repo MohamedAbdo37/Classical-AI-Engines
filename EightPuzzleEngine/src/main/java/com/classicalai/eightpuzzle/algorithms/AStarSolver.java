@@ -32,6 +32,9 @@ public class AStarSolver extends Engine {
     // playing the algorithm
     public EnvironmentState[] play() {
         search();
+        super.setSearchDepth(getSearchDepth());
+        super.setNodesExpanded(getNodesExpanded());
+        super.setRunningTime((double) getRunningTime());
         return getPathToGoalAsEnvironmentStates();
     }
 
