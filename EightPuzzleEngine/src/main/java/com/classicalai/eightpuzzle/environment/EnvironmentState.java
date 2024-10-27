@@ -2,6 +2,7 @@ package com.classicalai.eightpuzzle.environment;
 
 public class EnvironmentState {
 
+    private int board;
     private EnvironmentState parentState;
 
     public EnvironmentState getParentState() {
@@ -12,21 +13,23 @@ public class EnvironmentState {
         this.parentState = parentState;
     }
 
+    public void setBoard(int board) {
+        this.board = board;
+    }
 
     public boolean equals(EnvironmentState environmentState) {
         return false;
     }
 
-    public int toNumeric(){
+    public int toNumeric() {
         return 0;
     }
 
-    public int[] toArray(){
+    public int[] toArray() {
         return new int[0];
     }
 
-    public EnvironmentState[] getChildren(){
+    public EnvironmentState[] getChildren() {
         return new EnvironmentState[0];
     }
 }
-

@@ -29,6 +29,26 @@ public class AStarSolver extends Engine {
         this.h = h;
     }
 
+    // playing the algorithm
+    public EnvironmentState[] play() {
+        search();
+        return getPathToGoalAsEnvironmentStates();
+    }
+
+    public EnvironmentState[] getPathToGoalAsEnvironmentStates() {
+        int[] path = getPathToGoalAsIntArray();
+        EnvironmentState[] pathEnvironmentStates = new EnvironmentState[path.length];
+        EnvironmentState parent = null;
+        for (int i = 0; i < path.length; i++) {
+            pathEnvironmentStates[i].setBoard(path[i]);
+            if (i == 0)
+                pathEnvironmentStates[i].setParentState(null);
+            else
+                pathEnvironmentStates[i].setParentState(pathEnvironmentStates[i - 1]);
+
+        }
+    }
+
     // gets the depth of a certain node
     private int getDepth(int parent, int count) {
         // parent is found
@@ -458,6 +478,22 @@ public class AStarSolver extends Engine {
         return pathArray;
     }
 
+    // returns path to goal as array of ints
+    public int[] getPathToGoalAsIntArray() {
+        Stack<Integer> path = new Stack();
+        long currentState = visited.get(goalKey);
+        while (getParent(currentState) != 0) { // while the current state is not the root
+            path.push(getBoard(currentState));
+            currentState = visited.get(getParent(currentState));
+        }
+        int[] pathArray = new int[path.size()];
+        int size = path.size();
+        for (int i = 0; i < size; i++) {
+            pathArray[i] = path.pop();
+        }
+        return pathArray;
+    }
+
     // getting the depth of the goal
     public int getCostOfPath() {
         return getDepth(getParent(visited.get(goalKey)), 0);
@@ -478,40 +514,4 @@ public class AStarSolver extends Engine {
         return this.gameTime;
     }
 
-    /////////////////////
-    // public void printVisited() {
-    // frontier.printHeap();
-    // }
-    /**
-     * @return array of states from initial state to the goal state
-     */
-    @Override
-    public EnvironmentState[] play() {
-        // String initialState = "867254301";
-        // String heurestic = "h2";
-        // AStarSearch puzzle = new AStarSearch(initialState, heurestic);
-
-        // puzzle.search();
-
-        // String[] pathToGoal = puzzle.getPathToGoal();
-        // System.out.print("Path to goal: [");
-        // for (int i = 0; i < pathToGoal.length; i++) {
-        // if (i < pathToGoal.length - 1)
-        // System.out.print(pathToGoal[i] + ", ");
-        // else
-        // System.out.print(pathToGoal[i]);
-        // }
-        // System.out.println("]");
-
-        // System.out.println("Cost of path: " + puzzle.getCostOfPath());
-
-        // System.out.println("Nodes expanded: " + puzzle.getNumOfExpandedNodes() + "
-        // nodes");
-
-        // System.out.println("Search depth: " + puzzle.getSearchDepth());
-
-        // System.out.println("Time taken to solve the game: " + puzzle.getRunningTime()
-        // + " msec");
-        return new EnvironmentState[0];
-    }
 }
