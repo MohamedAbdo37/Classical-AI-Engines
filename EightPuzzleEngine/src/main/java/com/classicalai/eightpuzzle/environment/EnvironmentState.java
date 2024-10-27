@@ -12,8 +12,18 @@ public class EnvironmentState {
     public EnvironmentState(int[] state) {
         this.board = 0;
         for (int i = 0; i < 9; i++) {
-            this.board+= (int) (state[i] * Math.pow(10,i));
+            this.board+= (int) (state[8-i] * Math.pow(10,i));
         }
+        this.setEmptyCellPosition(searchZero());
+    }
+
+    public int searchZero(){
+        int[] temp = this.toArray();
+        for (int i = 0; i < temp.length; i++) {
+            if(temp[i] == 0)
+                return i;
+        }
+        return -1;
     }
 
     public EnvironmentState(int Board, int emptyCellPosition, EnvironmentState parent, int depth){
@@ -32,17 +42,13 @@ public class EnvironmentState {
     }
 
 
-    public boolean equals(EnvironmentState environmentState) {
-        return false;
-    }
-
-    private int toNumeric(int[] board){
-
-        return 0;
-    }
-
     public int[] toArray() {
-        return new int[0];
+        int[] output = {0,0,0,0,0,0,0,0,0};
+        for (int i = 0; i < 9; i++) {
+            output[i] = (int) (this.board/Math.pow(10,8-i));
+            output[i]%= 10;
+        }
+        return output;
     }
 
     public ArrayList<EnvironmentState> getChildren(){
@@ -97,20 +103,24 @@ public class EnvironmentState {
         this.emptyCellPosition = emptyCellPosition;
     }
 
-    public void setBoard(int board) {
-        this.board = board;
-    }
 
     public int getDepth() {
         return depth;
     }
 
-    public void setDepth(int depth) {
-        this.depth = depth;
-    }
-
     public int getBoard() {
         return board;
+    }
+
+    public static boolean checkSolvability(int[] input) {
+        int invCount = 0;
+        for (int i = 0; i < 9; i++)
+            for (int j = i + 1; j < 9; j++)
+                // Value 0 is used for empty space
+                if (input[i] != 0 && input[j] != 0 && input[i] > input[j])
+                    invCount++;
+
+        return invCount % 2 != 0;  // solvable
     }
 }
 

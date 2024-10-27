@@ -10,7 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-
+import javafx.util.Duration;
 
 
 import java.awt.*;
@@ -25,7 +25,7 @@ public class Controller implements Initializable {
 
     private ImageView[] pieces;
     private Point[] places;
-    private final String[] engines = {"BFS", "IDS", "DFS", "A*"};
+    private final String[] engines = {"BFS", "IDS", "DFS", "A* - Manhattan", "A* - Euclidean" };
     private Engine engine;
     private List<String> solution;
     private EnvironmentState[] path;
@@ -46,95 +46,69 @@ public class Controller implements Initializable {
     public TextField initialState;
     public ChoiceBox<String> enginType;
     public ListView<String> pathState;
+    public Label time;
+    public Label cost;
+    public Label depth;
+    public Label nodes;
 
 
     @FXML
     protected void onPlayButtonClick() {
         System.out.println("Play!!!");
-        int[][] p = {
-                {1,2,5,3,4,0,6,7,8},
-                {1,2,5,3,0,4,6,7,8},
-                {1,2,5,3,4,6,7,0,8},
-                {1,2,5,3,4,6,0,7,8},
-                {1,2,5,3,4,6,7,0,8},
-                {1,2,5,3,4,6,7,8,7}
-        };
 
-// 1,2,5,3,4,0,6,7,8
-
-        Thread playThread = new Thread(){
-            public void run(){
-                TranslateTransition translate = new TranslateTransition();
-                for (int i = 1; i < path.length; i++) {
-                    int[] temp = path[i].toArray();
-                    translate.setNode(pieces[temp[currentState.getEmptyCellPosition()] - 1]);
-                    translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
-                    translate.setByY(places[currentState.getEmptyCellPosition()].getY() - places[path[i].getEmptyCellPosition()].getY());
-                    translate.play();
-                    currentState = path[i];
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        Thread playThread = new Thread(() -> {
+            TranslateTransition translate = new TranslateTransition();
+            currentState = path[0];
+            try {
+                setPuzzleBoard(currentState.toArray());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            for (int i = 1; i < path.length; i++) {
+                int[] temp = path[i].toArray();
+                translate.setNode(pieces[temp[currentState.getEmptyCellPosition()]-1]);
+                translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
+                translate.setByY(places[currentState.getEmptyCellPosition()].getY() - places[path[i].getEmptyCellPosition()].getY());
+                translate.setDuration(Duration.millis(750));
+                translate.play();
+                currentState = path[i];
+                try {
+                    Thread.sleep(800);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        };
+        });
 
-//        Thread myThread =
-//                new Thread(){
-//                    public void run(){
-//                        TranslateTransition translate = new TranslateTransition();
-//                        translate.setNode(pieces[4-1]);
-//                        translate.setByX(places[5].getX() - places[4].getX());
-//                        translate.setByY(places[5].getY() - places[4].getY());
-//                        translate.play();
-//                        System.out.println("Runnable running");
-//                        try {
-//                            Thread.sleep(500);
-//                        } catch (InterruptedException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//
-//                        translate.setNode(pieces[7-1]);
-//                        translate.setByX(places[4].getX() - places[7].getX());
-//                        translate.setByY(places[4].getY() - places[7].getY());
-//                        translate.play();
-//                        System.out.println("Runnable running");
-//                    }
-//                };
-//
         playThread.start();
     }
-
-//    private int getMovedPiece(int[] ints) {
-//        int piece;
-//        for (int i = 0; i < ; i++) {
-//
-//        }
-//    }
 
     @FXML
     protected void onSolveButtonClick() {
         System.out.println("Solve!!!");
+        this.alarmLabel.setText("");
+        this.pathState.getItems().clear();
         try {
             int[] state = this.toStateArray(initialState.getText());
             System.out.printf("Initial State: %s%n", Arrays.toString(state));
+
             this.setPuzzleBoard(state);
             this.selectEngin(state);
-            System.out.println(engine.getInitialState().getBoard());
+
+            double startTime = System.nanoTime();
             this.path = engine.play();
+            double endTime = System.nanoTime();
+
+            double duration = (endTime - startTime);
+
             toPathState(path);
+            System.out.println("time: "+this.timeFormat(duration));
+            this.time.setText(this.timeFormat(duration));
+            this.depth.setText(String.valueOf(engine.getSearchDepth()));
+            this.nodes.setText(String.valueOf(engine.getNodesExpanded()));
+            this.cost.setText(String.valueOf(solution.size() -1));
             this.pathState.getItems().addAll(this.solution);
-//            String[] p = {
-//                    "{1,2,5,3,4,0,6,7,8}",
-//                    "{1,2,5,3,0,4,6,7,8}",
-//                    "{1,2,5,3,4,6,7,0,8}",
-//                    "{1,2,5,3,4,6,0,7,8}",
-//                    "{1,2,5,3,4,6,7,0,8}",
-//                    "{1,2,5,3,4,6,7,8,7}"
-//            };
-//            this.pathState.getItems().addAll(p);
+
         } catch (Exception ex) {
             alarmLabel.setText(ex.getMessage());
             System.out.println(ex.getMessage());
@@ -144,8 +118,9 @@ public class Controller implements Initializable {
 
     private void toPathState(EnvironmentState[] play) {
         this.solution = new ArrayList<>();
-        for (int i = 0; i < play.length; i++)
-          solution.add(Arrays.toString(play[0].toArray()));
+        for (EnvironmentState environmentState : play) {
+            solution.add(Arrays.toString(environmentState.toArray()));
+        }
     }
 
 
@@ -156,12 +131,21 @@ public class Controller implements Initializable {
                     throw  new Exception("Invalid State: Duplicated Piece");
 
         System.out.println("no duplicates check DONE.");
+
+        if(EnvironmentState.checkSolvability(puzzle))
+            throw new Exception("this is puzzle can't be solved");
+
         for (int i = 0; i < puzzle.length; i++) {
             if(puzzle[i] == 0) continue;
             this.pieces[puzzle[i]-1].setLayoutX(places[i].getX());
+            this.pieces[puzzle[i]-1].setX(0);
+            this.pieces[puzzle[i]-1].setTranslateX(0);
             this.pieces[puzzle[i]-1].setLayoutY(places[i].getY());
+            this.pieces[puzzle[i]-1].setTranslateY(0);
+
         }
         System.out.println("All pieces in place check DONE.");
+
     }
 
     private int[] toStateArray(String state) throws Exception{
@@ -181,18 +165,22 @@ public class Controller implements Initializable {
         if (s == null)
             throw new Exception("Choose an Engin!!");
         System.out.println("Engine is "+ s);
+        this.currentState = new EnvironmentState(state);
         switch (s){
             case "BFS":
-                this.engine = new BFSSolver(new EnvironmentState(state));
+                this.engine = new BFSSolver(this.currentState);
                 break;
             case "DFS":
-                this.engine = new DFSSolver(new EnvironmentState(state));
+                this.engine = new DFSSolver(this.currentState);
                 break;
             case "IDS":
-                this.engine = new IDSSolver(new EnvironmentState(state));
+                this.engine = new IDSSolver(this.currentState);
                 break;
-            case "A*":
-                this.engine = new AStarSolver(new EnvironmentState(state),"h1");
+            case "A* - Manhattan":
+                this.engine = new AStarSolver(this.currentState,"h1");
+                break;
+            case "A* - Euclidean":
+                this.engine = new AStarSolver(this.currentState,"h2");
                 break;
         }
     }
@@ -226,6 +214,16 @@ public class Controller implements Initializable {
             pieces[i].setLayoutX(places[i+1].getX());
             pieces[i].setLayoutY(places[i+1].getY());
         }
+    }
+
+    private String timeFormat(double nanoseconds){
+        if (nanoseconds < 1000) return (float) nanoseconds + " ns";
+        nanoseconds /= 1000.0;
+        if (nanoseconds < 1000) return (float) nanoseconds + " μs";
+        nanoseconds /= 1000.0;
+        if (nanoseconds < 1000) return (float) nanoseconds + " ms";
+        nanoseconds /= 1000.0;
+        return (float) nanoseconds + " s";
     }
 
 }

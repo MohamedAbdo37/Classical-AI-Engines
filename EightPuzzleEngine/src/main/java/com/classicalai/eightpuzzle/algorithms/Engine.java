@@ -3,10 +3,11 @@ package com.classicalai.eightpuzzle.algorithms;
 import com.classicalai.eightpuzzle.environment.EnvironmentState;
 
 public abstract class Engine {
-    private final EnvironmentState initialState;
-    private int searchDepth;
-    private int nodesExpanded;
-    private double runningTime;
+    protected final EnvironmentState initialState;
+    protected int searchDepth;
+    protected int nodesExpanded;
+    protected double runningTime;
+    protected EnvironmentState result;
 
     public Engine(EnvironmentState initialState){
         this.initialState = initialState;
@@ -34,9 +35,6 @@ public abstract class Engine {
     }
 
 //    Getters
-    public EnvironmentState getInitialState() {
-        return initialState;
-    }
 
     public int getSearchDepth() {
         return searchDepth;
@@ -48,5 +46,16 @@ public abstract class Engine {
 
     public double getRunningTime() {
         return runningTime;
+    }
+
+    public EnvironmentState[] display_solution(){
+
+        EnvironmentState[] path_to_goal = new EnvironmentState[this.result.getDepth()+1] ;
+        for(int i=path_to_goal.length-1 ; i>=0 ; i--){
+            path_to_goal[i] = this.result ;
+            this.result = this.result.getParentState() ;
+        }
+
+        return path_to_goal ;
     }
 }

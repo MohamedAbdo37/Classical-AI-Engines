@@ -14,19 +14,19 @@ public class AStarSolver extends Engine {
     static long pd = 100000L; // the parent and direction digits
 
     // private MinHeap frontier = new MinHeap();
-    private PriorityQueue<Long> frontier = new PriorityQueue<>();
-    private HashMap<Integer, Long> visited = new HashMap<>();
+    private final PriorityQueue<Long> frontier = new PriorityQueue<>();
+    private final HashMap<Integer, Long> visited = new HashMap<>();
 
     private int goalKey = 0;
-    private String initialState;
-    private String h;
+    private final String initialState;
+    private final String h;
     private double gameTime;
     private int highestDepth;
 
     // constructor
     public AStarSolver(EnvironmentState initialState, String h) {
         super(initialState);
-        this.initialState = boardToString((long) initialState.getBoard());
+        this.initialState = boardToString(initialState.getBoard());
         this.h = h;
     }
 
@@ -44,7 +44,7 @@ public class AStarSolver extends Engine {
         EnvironmentState[] pathEnvironmentStates = new EnvironmentState[path.length];
         EnvironmentState parent = null;
         for (int i = 0; i < path.length; i++) {
-            pathEnvironmentStates[i] = new EnvironmentState(path[i], searchForEmptySlote(boardToString((long) path[i])),
+            pathEnvironmentStates[i] = new EnvironmentState(path[i], searchForEmptySlote(boardToString(path[i])),
                     parent, i);
             if (i == 0)
                 pathEnvironmentStates[i].setParentState(null);
@@ -89,7 +89,7 @@ public class AStarSolver extends Engine {
                 continue; // do not add the manhanten distance for the empty slote
             int currentNode = Integer.parseInt(Character.toString(board.charAt(i)));
             int distance = (int) Math.sqrt(Math.pow(((currentNode % 3) - (i % 3)) + 0.0, 2.0)
-                    + Math.pow(((currentNode / 3) - (i / 3)) + 0.0, 2.0));
+                    + Math.pow((((double) currentNode / 3) - ((double) i / 3)) + 0.0, 2.0));
             value += distance; // adding y difference
         }
         return value;
@@ -99,7 +99,7 @@ public class AStarSolver extends Engine {
     // (dir) it came from and its cost to the goal
     private long prepareState(String board, int parent, int dir, String h) {
         int f = 0; // = g(depth) + h(h1 or h2)
-        int g = 0;
+        int g;
         // choosing the heuristic funtion desired
         switch (h) {
             case "h1": // manhaten heuristic
@@ -121,7 +121,7 @@ public class AStarSolver extends Engine {
         }
 
         // state: [cost|board|parent|dir]
-        return f * bpd + Long.parseLong(board) * pd + parent * 10 + dir;
+        return f * bpd + Long.parseLong(board) * pd + parent * 10L + dir;
     }
 
     // gets the cost of a state [COST|board|parent|dir]
@@ -139,15 +139,15 @@ public class AStarSolver extends Engine {
         return (int) (state % pd) / 10;
     }
 
-    // gets the dir of a state [cost|board|parent|DIR]
-    static int getDir(long state) {
-        return (int) (state % 10);
-    }
+//    // gets the dir of a state [cost|board|parent|DIR]
+//    static int getDir(long state) {
+//        return (int) (state % 10);
+//    }
 
-    // gets the state without the cost [cost|BOARD|PARENT|DIR]
-    static long removeCost(long state) {
-        return (state % bpd);
-    }
+//    // gets the state without the cost [cost|BOARD|PARENT|DIR]
+//    static long removeCost(long state) {
+//        return (state % bpd);
+//    }
 
     // tests if the goal is found
     // 0 1 2
@@ -282,12 +282,12 @@ public class AStarSolver extends Engine {
         q.add(newState);
     }
 
-    public void printFrontier() {
-        ArrayList<Long> arr = new ArrayList<>(frontier);
-        for (int i = 0; i < arr.size(); i++)
-            System.out.println(getCost(arr.get(i)));
-        System.out.println("........................");
-    }
+//    public void printFrontier() {
+//        ArrayList<Long> arr = new ArrayList<>(frontier);
+//        for (int i = 0; i < arr.size(); i++)
+//            System.out.println(getCost(arr.get(i)));
+//        System.out.println("........................");
+//    }
 
     // updates the frontier if new cost is lesser
     private void updateInFront(long newState, int index) {
@@ -309,7 +309,7 @@ public class AStarSolver extends Engine {
             if (temp == -1) { // if it is a new state
                 // frontier.insert(prepareState(boardToString(upBoard), parentID, 3, h));
                 frontier.add(prepareState(boardToString(upBoard), parentID, 3, h));
-            } else if (temp != -1 && temp != -2) { // if it is in the fronteir
+            } else if (temp != -2) { // if it is in the fronteir
                 updateInFront(prepareState(boardToString(upBoard), parentID, 3, h), temp);
             }
         }
@@ -327,7 +327,7 @@ public class AStarSolver extends Engine {
             if (temp == -1) { // if it is a new state
                 // frontier.insert(prepareState(boardToString(downBoard), parentID, 4, h));
                 frontier.add(prepareState(boardToString(downBoard), parentID, 4, h));
-            } else if (temp != -1 && temp != -2) { // if it is in the fronteir
+            } else if (temp != -2) { // if it is in the fronteir
                 updateInFront(prepareState(boardToString(downBoard), parentID, 4, h), temp);
             }
         }
@@ -346,7 +346,7 @@ public class AStarSolver extends Engine {
             if (temp == -1) { // if it is a new state
                 // frontier.insert(prepareState(boardToString(leftBoard), parentID, 2, h));
                 frontier.add(prepareState(boardToString(leftBoard), parentID, 2, h));
-            } else if (temp != -1 && temp != -2) { // if it is in the fronteir
+            } else if (temp != -2) { // if it is in the fronteir
                 updateInFront(prepareState(boardToString(leftBoard), parentID, 2, h), temp);
             }
         }
@@ -365,23 +365,23 @@ public class AStarSolver extends Engine {
             if (temp == -1) { // if it is a new state
                 // frontier.insert(prepareState(boardToString(rightBoard), parentID, 1, h));
                 frontier.add(prepareState(boardToString(rightBoard), parentID, 1, h));
-            } else if (temp != -1 && temp != -2) { // if it is in the fronteir
+            } else if (temp != -2) { // if it is in the fronteir
                 updateInFront(prepareState(boardToString(rightBoard), parentID, 1, h), temp);
             }
         }
 
     }
 
-    private void printBoard(String board) {
-        for (int j = 0; j < 9; j += 3) {
-            for (int i = j; i < j + 3; i++) {
-                System.out.print(board.charAt(i) + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println("---------------");
-    }
+//    private void printBoard(String board) {
+//        for (int j = 0; j < 9; j += 3) {
+//            for (int i = j; i < j + 3; i++) {
+//                System.out.print(board.charAt(i) + " ");
+//            }
+//            System.out.println();
+//        }
+//        System.out.println();
+//        System.out.println("---------------");
+//    }
 
     // start searching
     public void search() {
@@ -440,45 +440,46 @@ public class AStarSolver extends Engine {
     }
 
     // printing the moves leads to the goal
-    public String[] getPathToGoal() {
-        Stack<Integer> path = new Stack();
-        long currentState = visited.get(goalKey);
-        while (getParent(currentState) != 0) { // while the current state is not the root
-            path.push(getDir(currentState));
-            currentState = visited.get(getParent(currentState));
-        }
-        String[] pathArray = new String[path.size()];
-        int size = path.size();
-        for (int i = 0; i < size; i++) {
-            int intPath = path.pop();
-            switch (intPath) {
-                case 1: // right
-                    pathArray[i] = "right";
-                    break;
-                case 2: // left
-                    pathArray[i] = "left";
-                    break;
-                case 3: // up
-                    pathArray[i] = "up";
-                    break;
-                case 4: // down
-                    pathArray[i] = "down";
-                    break;
-                default:
-                    break;
-            }
-        }
-        return pathArray;
-    }
+//    public String[] getPathToGoal() {
+//        Stack<Integer> path = new Stack<>();
+//        long currentState = visited.get(goalKey);
+//        while (getParent(currentState) != 0) { // while the current state is not the root
+//            path.push(getDir(currentState));
+//            currentState = visited.get(getParent(currentState));
+//        }
+//        String[] pathArray = new String[path.size()];
+//        int size = path.size();
+//        for (int i = 0; i < size; i++) {
+//            int intPath = path.pop();
+//            switch (intPath) {
+//                case 1: // right
+//                    pathArray[i] = "right";
+//                    break;
+//                case 2: // left
+//                    pathArray[i] = "left";
+//                    break;
+//                case 3: // up
+//                    pathArray[i] = "up";
+//                    break;
+//                case 4: // down
+//                    pathArray[i] = "down";
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//        return pathArray;
+//    }
 
     // returns path to goal as array of ints
     public int[] getPathToGoalAsIntArray() {
-        Stack<Integer> path = new Stack();
+        Stack<Integer> path = new Stack<>();
         long currentState = visited.get(goalKey);
         while (getParent(currentState) != 0) { // while the current state is not the root
             path.push((int) getBoard(currentState));
             currentState = visited.get(getParent(currentState));
         }
+        path.push((int) getBoard(currentState));
         int[] pathArray = new int[path.size()];
         int size = path.size();
         for (int i = 0; i < size; i++) {
@@ -487,15 +488,7 @@ public class AStarSolver extends Engine {
         return pathArray;
     }
 
-    // getting the depth of the goal
-    public int getCostOfPath() {
-        return getDepth(getParent(visited.get(goalKey)), 0);
-    }
 
-    // get number of nodes expanded
-    public int getNumOfExpandedNodes() {
-        return visited.size() - 1;
-    }
 
     // get highest depth reached during searching
     public int getSearchDepth() {
