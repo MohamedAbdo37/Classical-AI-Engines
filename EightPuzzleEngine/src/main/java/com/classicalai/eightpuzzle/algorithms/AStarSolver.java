@@ -4,7 +4,7 @@ import com.classicalai.eightpuzzle.environment.EnvironmentState;
 
 public class AStarSolver extends Engine{
 
-    public AStarSolver(EnvironmentState initialState){
+    public AStarSolver(EnvironmentState initialState, String h){
         super(initialState);
     }
 

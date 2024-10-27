@@ -10,7 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.util.Duration;
+
 
 
 import java.awt.*;
@@ -62,49 +62,49 @@ public class Controller implements Initializable {
 
 // 1,2,5,3,4,0,6,7,8
 
-//        Thread playThread = new Thread(){
-//            public void run(){
-//                TranslateTransition translate = new TranslateTransition();
-//                for (int i = 1; i < path.length; i++) {
-//                    int[] temp = path[i].toArray();
-//                    translate.setNode(pieces[temp[currentState.getEmptyCellPosition()] - 1]);
-//                    translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
-//                    translate.setByY(places[currentState.getEmptyCellPosition()].getY() - places[path[i].getEmptyCellPosition()].getY());
-//                    translate.play();
-//                    currentState = path[i];
-//                    try {
-//                        Thread.sleep(500);
-//                    } catch (InterruptedException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//            }
-//        };
-
-        Thread myThread =
-                new Thread(){
-                    public void run(){
-                        TranslateTransition translate = new TranslateTransition();
-                        translate.setNode(pieces[4-1]);
-                        translate.setByX(places[5].getX() - places[4].getX());
-                        translate.setByY(places[5].getY() - places[4].getY());
-                        translate.play();
-                        System.out.println("Runnable running");
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        translate.setNode(pieces[7-1]);
-                        translate.setByX(places[4].getX() - places[7].getX());
-                        translate.setByY(places[4].getY() - places[7].getY());
-                        translate.play();
-                        System.out.println("Runnable running");
+        Thread playThread = new Thread(){
+            public void run(){
+                TranslateTransition translate = new TranslateTransition();
+                for (int i = 1; i < path.length; i++) {
+                    int[] temp = path[i].toArray();
+                    translate.setNode(pieces[temp[currentState.getEmptyCellPosition()] - 1]);
+                    translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
+                    translate.setByY(places[currentState.getEmptyCellPosition()].getY() - places[path[i].getEmptyCellPosition()].getY());
+                    translate.play();
+                    currentState = path[i];
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                };
+                }
+            }
+        };
 
-        myThread.start();
+//        Thread myThread =
+//                new Thread(){
+//                    public void run(){
+//                        TranslateTransition translate = new TranslateTransition();
+//                        translate.setNode(pieces[4-1]);
+//                        translate.setByX(places[5].getX() - places[4].getX());
+//                        translate.setByY(places[5].getY() - places[4].getY());
+//                        translate.play();
+//                        System.out.println("Runnable running");
+//                        try {
+//                            Thread.sleep(500);
+//                        } catch (InterruptedException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//
+//                        translate.setNode(pieces[7-1]);
+//                        translate.setByX(places[4].getX() - places[7].getX());
+//                        translate.setByY(places[4].getY() - places[7].getY());
+//                        translate.play();
+//                        System.out.println("Runnable running");
+//                    }
+//                };
+//
+        playThread.start();
     }
 
 //    private int getMovedPiece(int[] ints) {
@@ -122,18 +122,18 @@ public class Controller implements Initializable {
             System.out.printf("Initial State: %s%n", Arrays.toString(state));
             this.setPuzzleBoard(state);
             this.selectEngin(state);
-//            this.path = engine.play();
-//            toPathState(path);
-//            this.pathState.getItems().addAll(this.solution);
-            String[] p = {
-                    "{1,2,5,3,4,0,6,7,8}",
-                    "{1,2,5,3,0,4,6,7,8}",
-                    "{1,2,5,3,4,6,7,0,8}",
-                    "{1,2,5,3,4,6,0,7,8}",
-                    "{1,2,5,3,4,6,7,0,8}",
-                    "{1,2,5,3,4,6,7,8,7}"
-            };
-            this.pathState.getItems().addAll(p);
+            this.path = engine.play();
+            toPathState(path);
+            this.pathState.getItems().addAll(this.solution);
+//            String[] p = {
+//                    "{1,2,5,3,4,0,6,7,8}",
+//                    "{1,2,5,3,0,4,6,7,8}",
+//                    "{1,2,5,3,4,6,7,0,8}",
+//                    "{1,2,5,3,4,6,0,7,8}",
+//                    "{1,2,5,3,4,6,7,0,8}",
+//                    "{1,2,5,3,4,6,7,8,7}"
+//            };
+//            this.pathState.getItems().addAll(p);
         } catch (Exception ex) {
             alarmLabel.setText(ex.getMessage());
             System.out.println(ex.getMessage());
@@ -191,7 +191,7 @@ public class Controller implements Initializable {
                 this.engine = new IDSSolver(new EnvironmentState(state));
                 break;
             case "A*":
-                this.engine = new AStarSolver(new EnvironmentState(state));
+                this.engine = new AStarSolver(new EnvironmentState(state),"h1");
                 break;
         }
     }
