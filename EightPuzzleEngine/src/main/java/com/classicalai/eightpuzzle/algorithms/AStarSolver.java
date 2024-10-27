@@ -26,7 +26,7 @@ public class AStarSolver extends Engine {
     // constructor
     public AStarSolver(EnvironmentState initialState, String h) {
         super(initialState);
-        this.initialState = boardToString((long)initialState.getBoard());
+        this.initialState = boardToString((long) initialState.getBoard());
         this.h = h;
     }
 
@@ -44,7 +44,8 @@ public class AStarSolver extends Engine {
         EnvironmentState[] pathEnvironmentStates = new EnvironmentState[path.length];
         EnvironmentState parent = null;
         for (int i = 0; i < path.length; i++) {
-            pathEnvironmentStates[i].setBoard(path[i]);
+            pathEnvironmentStates[i] = new EnvironmentState(path[i], searchForEmptySlote(boardToString((long) path[i])),
+                    parent, i);
             if (i == 0)
                 pathEnvironmentStates[i].setParentState(null);
             else
@@ -475,7 +476,7 @@ public class AStarSolver extends Engine {
         Stack<Integer> path = new Stack();
         long currentState = visited.get(goalKey);
         while (getParent(currentState) != 0) { // while the current state is not the root
-            path.push((int)getBoard(currentState));
+            path.push((int) getBoard(currentState));
             currentState = visited.get(getParent(currentState));
         }
         int[] pathArray = new int[path.size()];
