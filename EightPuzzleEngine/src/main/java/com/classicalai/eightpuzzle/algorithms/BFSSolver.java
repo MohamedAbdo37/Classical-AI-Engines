@@ -1,12 +1,7 @@
 package com.classicalai.eightpuzzle.algorithms;
-
 import com.classicalai.eightpuzzle.environment.EnvironmentState;
 
-import java.util.ArrayList;
-import java.util.Queue;
-import java.util.LinkedList;
-import java.util.HashSet;
-
+import java.util.* ;
 
 public class BFSSolver extends Engine{
 
@@ -17,15 +12,17 @@ public class BFSSolver extends Engine{
         super.result = null ;
     }
 
-    /**
-     * @return array of states from initial state to the goal state
-     */
+    /* @return array of states from initial state to the goal state */
     @Override
     public EnvironmentState[] play() {
 
+        // queue for nodes that will expanded at the next times 
         Queue<EnvironmentState> frontier = new LinkedList<>() ;
         frontier.add(this.initialState) ;
 
+        // Hashset contains all nodes that were visited or nodes that are in the frontier at the current time
+        // Hashset gives O(1) operations (instead of linear search in visited and frontier queues)
+        // we now don't want visited array
         HashSet<Integer> Reached_Before = new HashSet<>() ;
         Reached_Before.add(this.initialState.getBoard()) ;
 
