@@ -31,18 +31,18 @@ public class IDSSolver extends Engine{
 
             while (!frontier.isEmpty()) {
                 EnvironmentState state = frontier.pop();  // the node that will be next expanded
-                this.expanded_nodes++;
+                this.nodesExpanded++;
 
                 if(state.getDepth() == this.limit) { // search for goal in the search depth equal to limit only
                                                     // because we are sure that no goal exists at lower limit
                     if (state.getBoard() == 12345678) {  // goal is reached
                         this.result = state;
-                        this.Search_depth = state.getDepth() ;
+                        this.searchDepth = state.getDepth() ;
                         return this.display_solution();
                     }
                 }
 
-                ArrayList<EnvironmentState> children = state.getStateChildren(); // Array list of all possible children
+                ArrayList<EnvironmentState> children = state.getChildren(); // Array list of all possible children
                 for (int i=children.size()-1 ; i>=0 ; i--) {
                     if (!Reached_Before.containsKey(children.get(i).getBoard())) {
                         if(children.get(i).getDepth()<= limit) // if child isn't visited before and its depth <= limit , push it
