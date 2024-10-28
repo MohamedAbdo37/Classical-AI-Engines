@@ -1,5 +1,4 @@
 package com.classicalai.eightpuzzle.environment;
-
 import java.util.ArrayList;
 
 public class EnvironmentState {
@@ -23,9 +22,11 @@ public class EnvironmentState {
             if(temp[i] == 0)
                 return i;
         }
-        return -1;
+        return -1; // zero doesn't exist
     }
 
+
+    // constructor
     public EnvironmentState(int Board, int emptyCellPosition, EnvironmentState parent, int depth){
         this.board = Board;
         this.emptyCellPosition = emptyCellPosition;
@@ -42,6 +43,7 @@ public class EnvironmentState {
     }
 
 
+    // converting integer of board to array of integers
     public int[] toArray() {
         int[] output = {0,0,0,0,0,0,0,0,0};
         for (int i = 0; i < 9; i++) {
@@ -51,6 +53,7 @@ public class EnvironmentState {
         return output;
     }
 
+    // getting all possible children (up-down-left-right)
     public ArrayList<EnvironmentState> getChildren(){
         ArrayList<EnvironmentState> children = new ArrayList<>() ;
 
@@ -112,6 +115,7 @@ public class EnvironmentState {
         return board;
     }
 
+    // check solvability of board
     public static boolean checkSolvability(int[] input) {
         int invCount = 0;
         for (int i = 0; i < 9; i++)
