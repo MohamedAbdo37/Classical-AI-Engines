@@ -30,6 +30,9 @@ public class Controller implements Initializable {
     private List<String> solution;
     private EnvironmentState[] path;
     private EnvironmentState currentState ;
+    private Thread playThread;
+    private boolean isPlay = false;
+    private int step;
 
     @FXML
     public Button play;
@@ -55,16 +58,28 @@ public class Controller implements Initializable {
     @FXML
     protected void onPlayButtonClick() {
         System.out.println("Play!!!");
-
-        Thread playThread = new Thread(() -> {
+        if(path.length == 0)
+            return;
+        if (isPlay) {
+            isPlay= false;
+            return;
+        }
+        isPlay = true;
+        playThread = new Thread(() -> {
             TranslateTransition translate = new TranslateTransition();
             currentState = path[0];
+            solve.setDisable(true);
             try {
                 setPuzzleBoard(currentState.toArray());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            for (int i = 1; i < path.length; i++) {
+            int i = 1;
+            for (; i < path.length; i++) {
+                if(!isPlay) {
+                    break;
+                }
+                
                 int[] temp = path[i].toArray();
                 translate.setNode(pieces[temp[currentState.getEmptyCellPosition()]-1]);
                 translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
@@ -78,6 +93,9 @@ public class Controller implements Initializable {
                     throw new RuntimeException(e);
                 }
             }
+            solve.setDisable(false);
+            isPlay = false;
+            if(i >= path.length) step = 1;
         });
 
         playThread.start();
@@ -98,7 +116,7 @@ public class Controller implements Initializable {
             double startTime = System.nanoTime();
             this.path = engine.play();
             double endTime = System.nanoTime();
-
+            step = 1;
             double duration = (endTime - startTime);
 
             toPathState(path);
