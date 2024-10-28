@@ -42,7 +42,7 @@
          <TextField fx:id="initialState" layoutX="46.0" layoutY="64.0" promptText="Enter Initial State" />
          <Label fx:id="alarmLabel" alignment="CENTER" layoutX="36.0" layoutY="126.0" prefHeight="17.0" prefWidth="171.0" textFill="RED" />
          <Button fx:id="solve" layoutX="76.0" layoutY="95.0" mnemonicParsing="false" onAction="#onSolveButtonClick" text="Solve" />
-         <Label layoutX="9.0" layoutY="37.0" text="Chose Engin" />
+         <Label layoutX="9.0" layoutY="37.0" text="Engine type" />
          <ChoiceBox fx:id="enginType" layoutX="80.0" layoutY="33.0" prefHeight="25.0" prefWidth="91.0" />
       </AnchorPane>
       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="385.0" prefWidth="243.0">

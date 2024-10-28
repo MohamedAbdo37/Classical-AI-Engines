@@ -84,7 +84,7 @@ public class Controller implements Initializable {
                 translate.setNode(pieces[temp[currentState.getEmptyCellPosition()]-1]);
                 translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
                 translate.setByY(places[currentState.getEmptyCellPosition()].getY() - places[path[i].getEmptyCellPosition()].getY());
-                translate.setDuration(Duration.millis(750));
+                translate.setDuration(Duration.millis(500));
                 translate.play();
                 currentState = path[i];
                 try {
@@ -151,7 +151,7 @@ public class Controller implements Initializable {
         System.out.println("no duplicates check DONE.");
 
         if(EnvironmentState.checkSolvability(puzzle))
-            throw new Exception("this is puzzle can't be solved");
+            throw new Exception("this puzzle can't be solved");
 
         for (int i = 0; i < puzzle.length; i++) {
             if(puzzle[i] == 0) continue;
@@ -181,7 +181,7 @@ public class Controller implements Initializable {
         String s = enginType.getValue();
 
         if (s == null)
-            throw new Exception("Choose an Engin!!");
+            throw new Exception("Choose an Engine!!");
         System.out.println("Engine is "+ s);
         this.currentState = new EnvironmentState(state);
         switch (s){
