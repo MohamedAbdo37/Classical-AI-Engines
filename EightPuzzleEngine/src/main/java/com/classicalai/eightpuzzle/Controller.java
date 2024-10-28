@@ -69,7 +69,7 @@ public class Controller implements Initializable {
                 translate.setNode(pieces[temp[currentState.getEmptyCellPosition()]-1]);
                 translate.setByX(places[currentState.getEmptyCellPosition()].getX() - places[path[i].getEmptyCellPosition()].getX());
                 translate.setByY(places[currentState.getEmptyCellPosition()].getY() - places[path[i].getEmptyCellPosition()].getY());
-                translate.setDuration(Duration.millis(750));
+                translate.setDuration(Duration.millis(500));
                 translate.play();
                 currentState = path[i];
                 try {
