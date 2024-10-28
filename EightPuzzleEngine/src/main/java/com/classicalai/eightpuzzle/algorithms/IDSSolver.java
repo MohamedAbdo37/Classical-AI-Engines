@@ -40,6 +40,8 @@ public class IDSSolver extends Engine{
                         this.searchDepth = state.getDepth() ;
                         return this.display_solution();
                     }
+                    else
+                        break;
                 }
 
                 if (state.getDepth() < this.limit) {

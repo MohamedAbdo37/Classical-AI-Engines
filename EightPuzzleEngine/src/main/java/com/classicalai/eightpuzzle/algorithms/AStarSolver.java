@@ -95,7 +95,7 @@ public class AStarSolver extends Engine {
         return value;
     }
 
-    // prepares the board to be a state --> by adding its parent Id and the move
+    // prepares the board to be a state --> by adding its parent ID and the move
     // (dir) it came from and its cost to the goal
     private long prepareState(String board, int parent, int dir, String h) {
         int f = 0; // = g(depth) + h(h1 or h2)
@@ -104,14 +104,14 @@ public class AStarSolver extends Engine {
         switch (h) {
             case "h1": // manhaten heuristic
                 g = getDepth(parent, 0);
-                // updating highest depth
+                // updating the highest depth
                 if (this.highestDepth < g)
                     this.highestDepth = g;
                 f = g + getManHeuristic(board);
                 break;
             case "h2": // euler heuristic
                 g = getDepth(parent, 0);
-                // updating highest depth
+                // updating the highest depth
                 if (this.highestDepth < g)
                     this.highestDepth = g;
                 f = g + getEulHeuristic(board);
@@ -227,7 +227,7 @@ public class AStarSolver extends Engine {
         }
     }
 
-    // creating a new randomized Id with maximum 4 digits
+    // creating a new randomized ID with maximum 4 digits
     // not in visited list keys
     private int createId() {
         int id = (int) (Math.random() * 10000);
@@ -346,7 +346,7 @@ public class AStarSolver extends Engine {
             if (temp == -1) { // if it is a new state
                 // frontier.insert(prepareState(boardToString(leftBoard), parentID, 2, h));
                 frontier.add(prepareState(boardToString(leftBoard), parentID, 2, h));
-            } else if (temp != -2) { // if it is in the fronteir
+            } else if (temp != -2) { // if it is in the frontier
                 updateInFront(prepareState(boardToString(leftBoard), parentID, 2, h), temp);
             }
         }
@@ -490,7 +490,7 @@ public class AStarSolver extends Engine {
 
 
 
-    // get highest depth reached during searching
+    // get the highest depth reached during searching
     public int getSearchDepth() {
         return this.highestDepth;
     }
