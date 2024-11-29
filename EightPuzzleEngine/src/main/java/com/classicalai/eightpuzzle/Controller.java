@@ -88,7 +88,7 @@ public class Controller implements Initializable {
                 translate.play();
                 currentState = path[i];
                 try {
-                    Thread.sleep(800);
+                    Thread.sleep(550);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
