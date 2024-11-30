@@ -2,16 +2,23 @@ import tkinter as tk
 from tkinter import ttk
 import math
 
-# user plays with blue and computer with red peices
+# default user plays first with blue and computer with red peices 
+# default AI algorithm used is MinMax without Pruning with k = 8
 class GUI:
     def __init__(self):
         # Main variables
-        self.player = "User"
+        self.start_player = "User"
+        self.player = self.start_player
+        self.user_color = "blue"
+        self.computer_color = "red"
+        self.player_color = self.user_color
+        self.game_status = "off"
         self.user_score = 0
         self.computer_score = 0
         self.grid_array = self.__init_grid_array()
         self.grid_string_array = []
         self.AI_algorithm = "MinMax without Pruning"
+        self.k = 8
 
         # Create the main window of size 1400x600
         self.root = tk.Tk()
@@ -41,6 +48,21 @@ class GUI:
         self.options_frame.pack(side="top", fill='x')
         self.__create_options_bar()
 
+        # Show selected option
+        self.show_option_frame = tk.Frame(bg="lightgreen", border=1)
+        self.show_option_frame.pack(side="top", fill='x')
+        self.__creat_show_options()
+
+        # Creating starting options
+        self.starting_options_frame = tk.Frame(bg="antiquewhite", border=1)
+        self.starting_options_frame.pack(side="top", fill='x', pady=100)
+        self.__create_starting_options()
+
+        # Creating tree area
+        self.tree_frame = tk.Frame(bg="antiquewhite")
+        self.tree_frame.pack(side="top", fill="both")
+        # self.__create_tree()
+
         self.root.mainloop()
 
     def is_computer_turn(self):
@@ -69,6 +91,10 @@ class GUI:
         """returns the used AI algorithm by the computer"""
         return self.AI_algorithm
     
+    def __creat_show_options(self):
+        self.option = tk.Label(self.show_option_frame, text=f"Algorithm: {self.AI_algorithm}, K: {self.k}", font=('Arial', 16), bg="lightgreen")
+        self.option.pack(fill="x")
+
     def __init_grid_array(self):
         """returns an array that contains the next empty slote in each column of the grid"""
         return [0] * 7
@@ -99,11 +125,30 @@ class GUI:
         for widget in self.options_frame.winfo_children():
             widget.destroy()
         self.__create_options_bar()
+        self.show_option_frame.winfo_children()[0].destroy()
+        self.__creat_show_options()
     
-    def __set_AI_algorithm(self, list):
+    def __set_AI_algorithm(self, list, k):
         self.AI_algorithm  = list.get()
-        print(self.AI_algorithm)
+        self.k = k.get()
         self.__refresh_options()
+    
+    def __set_starting_settings(self, player_list, color_list):
+        self.start_player = player_list.get()
+        self.player = self.start_player
+        self.user_color = color_list.get()
+        if (self.user_color == "Red"):
+            self.computer_color = "Blue"
+        else:
+            self.computer_color = "Red"
+        if (self.player == "User"):
+            self.player_color = self.user_color
+        else:
+            self.player_color = self.computer_color
+        
+        self.starting_options_frame.destroy()
+        self.game_status = "on"
+        self.__refresh_info()
 
     def __set_play(self, cell_id):      # for testing only
     # def __set_play(self, cell_id, turn):        # in implementation
@@ -113,15 +158,15 @@ class GUI:
         req_cell = self.__get_cell_coordinates(cell_id)
 
         # check if the play is not in a full column
-        if (self.grid_array[req_cell[0]] < 6):              # for testing only
+        if (self.grid_array[req_cell[0]] < 6 and self.game_status=="on"):              # for testing only
         # if (turn == self.player and self.grid_array[req_cell[0]] < 6):     # in implementation
             # identifies the peice color and the player
-            fill_color = ""
+            current_color = self.player_color
             if (self.player == "Computer"):
-                fill_color = "#FF4040"
+                self.player_color = self.user_color
                 self.player = "User"
             elif (self.player == "User"):
-                fill_color = "#007FFF"
+                self.player_color = self.computer_color
                 self.player = "Computer"
 
             # choose the correct cell to insert the peice
@@ -129,7 +174,7 @@ class GUI:
             self.grid_array[req_cell[0]] += 1
             new_cell_coor = (req_cell[0], new_cell_y)
         
-            self.grid_frame.winfo_children()[0].itemconfig(self.__get_cell_id(new_cell_coor), fill=fill_color)
+            self.grid_frame.winfo_children()[0].itemconfig(self.__get_cell_id(new_cell_coor), fill=current_color)
             
             self.__refresh_info()
 
@@ -158,7 +203,7 @@ class GUI:
 
     def __create_info_bar(self):
         """Creating player's turn and score frame"""
-        player_turn = tk.Label(self.info_frame, text= f"Player's Turn: {self.player}", font=('Arial', 16), width=20, anchor="w", bg="lightblue")
+        player_turn = tk.Label(self.info_frame, text= f"Player's Turn: {self.player}", font=('Arial', 16), width=20, anchor="w", bg="lightblue", fg=self.player_color)
         player_turn.pack(side="left")
         reset_button = tk.Button(self.info_frame, text="Reset", command=self.__reset, width=10, cursor="hand2")
         reset_button.pack(fill="both", side="left", pady=10, padx=20)
@@ -172,24 +217,51 @@ class GUI:
         options = ["MinMax without Pruning", "MinMax with Pruning", "Expected MinMax"]
         options_list = ttk.Combobox(self.options_frame,font=('Arial', 14), values=options, width=20)
         options_list.pack(side="left", fill='x')
+        options_list.set(self.AI_algorithm)
 
-        # Set default value
-        options_list.set("MinMax without Pruning")
+        k_title = tk.Label(self.options_frame, text="K:", font=('Arial', 16), anchor="w", bg="lightgreen")
+        k_title.pack(side="left")
+        default_value = tk.StringVar()
+        default_value.set(self.k)
+        k_entry = tk.Entry(self.options_frame, font=('Arial', 16), width=10, textvariable=default_value)
+        k_entry.pack(side="left")
+        
 
         # Create a Button to get selected value
-        use_button = tk.Button(self.options_frame, text="Use", command= lambda list = options_list: self.__set_AI_algorithm(list), width=10, cursor="hand2")
+        use_button = tk.Button(self.options_frame, text="Use", command= lambda list = options_list, k = k_entry: self.__set_AI_algorithm(list, k), width=10, cursor="hand2")
         use_button.pack(side="left", padx=10)
 
-        # Show selected option
-        option = tk.Label(self.options_frame, text=self.AI_algorithm, font=('Arial', 16), anchor="w", bg="lightgreen")
-        option.pack(side="right")
+    def __create_starting_options(self):
+        """Creating starting options (which player will start and with which color)"""
+        player_label = tk.Label(self.starting_options_frame,text="Staring Player: ", font=('Arial', 14), width=20, anchor="w")
+        player_label.pack(side="top", fill="x")
+        
+        player_options = ["User", "Computer"]
+        player_options_list = ttk.Combobox(self.starting_options_frame,font=('Arial', 14), values=player_options, width=20)
+        player_options_list.pack(side="top", fill='x')
+        player_options_list.set("User")
+
+        user_color_label = tk.Label(self.starting_options_frame,text="User Color: ", font=('Arial', 14), width=20, anchor="w")
+        user_color_label.pack(side="top", fill="x")
+        
+        user_color_options = ["Red", "Blue"]
+        user_color_options_list = ttk.Combobox(self.starting_options_frame,font=('Arial', 14), values=user_color_options, width=20)
+        user_color_options_list.pack(side="top", fill='x')
+        user_color_options_list.set("Blue")
+
+        # Create a Button to get selected value
+        use_button = tk.Button(self.starting_options_frame, text="Start", command= lambda player_list = player_options_list, color_list = user_color_options_list : self.__set_starting_settings(player_list, color_list), width=10, cursor="hand2")
+        use_button.pack(side="top", padx=30)
 
     def __reset(self):
         """Resets game"""
-        self.player = "User"
-        self.computer_play = 0
+        self.player = self.start_player
+        if (self.start_player == "User"):
+            self.player_color = self.user_color
+        else: 
+            self.player_color = self.computer_color
+        self.computer_score = 0
         self.user_score = 0
         self.__refresh_info()
         self.grid_array = self.__init_grid_array()
         self.grid_frame.winfo_children()[0].itemconfig("all", fill = "antiquewhite")
-GUI()
