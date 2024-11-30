@@ -65,3 +65,16 @@ def test_envi_state_eq():
 def test_envi_state_str():
     state = EnviState()
     assert str(state)
+    
+def test_envi_state_is_terminal_1():
+    state = EnviState()
+    assert not state.is_terminal() 
+def test_envi_state_is_terminal_2():
+    state = EnviState()
+    state.cols = '6666666'
+    assert state.is_terminal()
+    
+def test_envi_state_increase_col():
+    state = EnviState()
+    state.increase_col(0)
+    assert state.cols.decode("ASCII") == '1000000'
