@@ -1,6 +1,3 @@
-from numpy import maximum
-from Connect4.src.envi.tree import node_children
-
 
 class alpha_beta_pruning:
 
@@ -25,7 +22,7 @@ class alpha_beta_pruning:
         maximum_utility = float('-inf')
         maximum_child = None
 
-        node_children(state)
+        self.node_children(state)
         for child in state.children :
             utility = self.minimize(child , k , turn , alpha , beta) # type: ignore
 
