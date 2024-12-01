@@ -16,6 +16,18 @@ class EnviState:
         self.blocked_seqs = 0
         self.red_last = 0
         self.blue_last = 0
+        #initialize the children with the default value
+        self.children = [] 
+        #initialize the depth with the default value
+        self.depth = 0
+        #initialize the turn with the default value
+        self.turn = 1
+        #initialize the node_name with the default value for building tree
+        self.node_name = ''
+        #initialize the utility with the default value for building tree
+        self.utility = None
+ 
+
     
     def get_board_2d(self):
         """
@@ -39,6 +51,8 @@ class EnviState:
         # Return the completed 2D list
         return board
 
+
+
     def __str__(self):
         """
         Return a string representation of the board state.
@@ -51,6 +65,8 @@ class EnviState:
         # Convert the board list to a string
         return str(self.get_board_2d())
         
+
+
     def __eq__(self, other):
         """
         Check if two EnviStates are equal by comparing their string
@@ -67,6 +83,8 @@ class EnviState:
             True if the states are equal, False otherwise.
         """
         return str(self) == str(other)
+
+
     
     def __ne__(self, other):
         """
@@ -85,6 +103,7 @@ class EnviState:
         """
         return str(self) != str(other)
     
+
     def copy(self):
         """
         Return a copy of the current EnviState.
@@ -102,7 +121,11 @@ class EnviState:
         s.blocked_seqs = self.blocked_seqs  # Use the copy method to create a new copy of the blocked_seqs
         s.red_last = self.red_last  # Use the copy method to create a new copy of the red_last
         s.blue_last = self.blue_last  # Use the copy method to create a new copy of the blue_last
-        
+        s.children = self.children.copy()   # Use the copy method to create a new copy of the children
+        s.depth = self.depth        # Use the copy method to create a new copy of the depth
+        s.turn = self.turn      # Use the copy method to create a new copy of the turn
+        s.node_name = self.node_name        # Use the copy method to create a new copy of the node_name
+        s.utility = self.utility
         return s
 
     
@@ -152,6 +175,8 @@ class EnviState:
 
         # Return 'e' if the slot is empty
         return 'e'
+
+
     
     def set_slot(self, row, col, value):
         """
@@ -201,6 +226,8 @@ class EnviState:
             r = self.board[(5-row)*2+1]
             self.chage_char((5-row)*2+1, chr(r & ~s))
         
+
+
     def chage_char(self, index, value):
         """
         Change the character at a specific index in the board.
@@ -216,6 +243,8 @@ class EnviState:
         self.board = (
             self.board[:index] + value.encode("ASCII") + self.board[index+1:]
         )
+
+
 
     def find_row(self, col):
         """
@@ -235,6 +264,8 @@ class EnviState:
         if row >= 6:
             return -1
         return row
+
+
     
     def play_at(self, player, col):
         if col < 0 or col > 6:
@@ -259,6 +290,8 @@ class EnviState:
             self.red += self.new_points(row, col,'x')
         else:
             self.blue += self.new_points(row, col,'o')
+
+
         
     def red_weight(self):
         
@@ -291,6 +324,7 @@ class EnviState:
         # Return the weight of the move
         return weight 
 
+
     def blue_weight(self):
         
         col = self.blue_last
@@ -319,6 +353,7 @@ class EnviState:
         
         # Return the weight of the move
         return weight
+
     
     def new_points(self, row, col, player):
         """
@@ -658,6 +693,3 @@ class EnviState:
         """
         # Decrease the value of the column at the specified index
         self.cols = self.cols[:col] + str(int(self.cols[col]) - 1) + self.cols[col+1:]
-
-  
-
