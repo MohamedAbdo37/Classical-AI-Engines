@@ -1,5 +1,5 @@
 from numpy import maximum
-from Connect4.src.envi.tree import node_children
+from src.envi.envi_state import EnviState
 
 
 class alpha_beta_pruning:
@@ -15,6 +15,7 @@ class alpha_beta_pruning:
                 return state.utility , None
 
         if state.depth == k :
+            print(state.depth)
             if(turn==1):
                 state.utility = state.heuristic(1)
                 return state.utility , None
@@ -25,11 +26,11 @@ class alpha_beta_pruning:
         maximum_utility = float('-inf')
         maximum_child = None
 
-        node_children(state)
+        self.node_children(state)
         for child in state.children :
-            utility = self.minimize(child , k , turn , alpha , beta) # type: ignore
+            utility , _ = self.minimize(child , k , turn , alpha , beta) # type: ignore
 
-            if utility > maximum.utility :
+            if utility > maximum_utility :
                 maximum_utility = utility
                 maximum_child = child.copy()
 
@@ -57,6 +58,7 @@ class alpha_beta_pruning:
 
                 
         if state.depth == k :
+            print(state.depth) 
             if(turn==1):
                 state.utility = state.heuristic(1)
                 return state.utility , None
@@ -67,10 +69,10 @@ class alpha_beta_pruning:
 
         minimum_utility = float('inf')
         minimum_child = None
-
-        node_children(state)
+        
+        self.node_children(state)
         for child in state.children :
-            utility = self.maximize(child , k , turn , alpha , beta)
+            utility , _ = self.maximize(child , k , turn , alpha , beta)
 
             if utility < minimum_utility :
                 minimum_utility = child.utility
@@ -86,30 +88,37 @@ class alpha_beta_pruning:
         return minimum_utility , minimum_child
 
 
-    def minmax(self, initial_state, k):
+    def minmax_pruning(self, initial_state, k):
         _ , child = self.maximize(initial_state , k , initial_state.turn , float('-inf') , float('inf'))
-        cols1 = child.cols.decode("ASCII")
-        cols2 = initial_state.cols.decode("ASCII")
 
         for col in range (7) :
-            if(cols1[col] != cols2[col]) :
+            if(child.cols[col] != initial_state.cols[col]) :
                 return col
 
 
     def node_children(self, state) :
         for col in range(7):
             row = state.find_row(col)
+
             if  row != -1 :
                 child = state.copy()
-                if state.turn == 1 :
-                    child.set_slot(row , col , 'x')
-                elif state.turn == 2:
-                    child.set_slot(row , col , 'o')
+                child.children.clear() 
 
-                child.increase_col(col)
-                child.depth = child.depth+1
-                state.children.append(child)
+                if state.turn == 1 :
+                    child.play_at('x' , col)
+                elif state.turn == 2:
+                    child.play_at('o' , col)
+
+                child.depth = state.depth+1
                 if state.turn ==1 :
                     child.turn =2
                 else :
                     child.turn = 1
+                state.children.append(child)
+
+
+initial_state = EnviState()
+s = alpha_beta_pruning()
+s.minmax_pruning(initial_state , 3)
+
+#py -m src.algorithms.alpha_beta_pruning
