@@ -231,9 +231,7 @@ class EnviState:
         int
             The row index of the first empty slot in the column.
         """
-        row = int(self.cols[col])
-        if row >= 6:
-            return -1
+        row = int(self.cols[col])        
         return row
     
     def play_at(self, player, col):
@@ -242,7 +240,7 @@ class EnviState:
         
         row = self.find_row(col)
         
-        if row == -1:
+        if row == 6:
             raise ValueError("Invalid move: Column is full")
         
         if player == 'x':
@@ -295,7 +293,6 @@ class EnviState:
         
         col = self.blue_last
         row = self.find_row(col) - 1
-        
         # Initialize the set of chances to gain at least one point         
         self.chance_set = {}
         # Initialize the score to 0
@@ -409,7 +406,7 @@ class EnviState:
                 row = self.find_row(col)
                 
                 # If the column is full, skip it
-                if row == -1:
+                if row == 6:
                     continue
                 
                 # Check if the point is occupied by the given player
@@ -422,7 +419,7 @@ class EnviState:
             row = self.find_row(col)
             
             # If the column is full, skip it
-            if row == -1:
+            if row == 6:
                 return 0
             
             # Check if the point is occupied by the given player
@@ -445,7 +442,7 @@ class EnviState:
             row = self.find_row(col)
 
             # If the column is full, skip it
-            if row == -1:
+            if row == 6:
                 continue
 
             # Simulate placing the player's piece in the current slot
@@ -484,7 +481,7 @@ class EnviState:
         row = state.find_row(col)
         
         # If the column is full, skip it
-        if row == -1:
+        if row == 6:
             return 0
         
         # Simulate placing the player's piece in the current slot
@@ -522,7 +519,7 @@ class EnviState:
         row = self.find_row(col)
         
         # If the column is full, skip it
-        if row == -1:
+        if row == 6:
             return 0
         
         # Simulate placing the player's piece in the current slot
