@@ -1,8 +1,10 @@
-#from src.envi.envi_state import EnviState
+from numpy import maximum
+from Connect4.src.envi.tree import node_children
+
 
 class alpha_beta_pruning:
 
-    def Maximize(state , k , turn , alpha , beta):
+    def maximize(self, state , k , turn , alpha , beta):
 
         if state.is_terminal():
             if(turn==1):
@@ -25,7 +27,7 @@ class alpha_beta_pruning:
 
         node_children(state)
         for child in state.children :
-            utility = Minimize(child , k , turn , alpha , beta)
+            utility = self.minimize(child , k , turn , alpha , beta) # type: ignore
 
             if utility > maximum.utility :
                 maximum_utility = utility
@@ -43,7 +45,7 @@ class alpha_beta_pruning:
 
 
 
-    def Minimize(state , k , turn , alpha , beta):
+    def minimize(self, state , k , turn , alpha , beta):
 
         if state.is_terminal():
             if(turn==1):
@@ -68,7 +70,7 @@ class alpha_beta_pruning:
 
         node_children(state)
         for child in state.children :
-            utility = Maximize(child , k , turn , alpha , beta)
+            utility = self.maximize(child , k , turn , alpha , beta)
 
             if utility < minimum_utility :
                 minimum_utility = child.utility
@@ -84,8 +86,8 @@ class alpha_beta_pruning:
         return minimum_utility , minimum_child
 
 
-    def minmax(initial_State):
-        _ , child =Maximize(initial_State , k , initial_State.turn , float('-inf') , float('inf'))
+    def minmax(self, initial_state, k):
+        _ , child = self.maximize(initial_state , k , initial_state.turn , float('-inf') , float('inf'))
         cols1 = child.cols.decode("ASCII")
         cols2 = initial_state.cols.decode("ASCII")
 
@@ -94,7 +96,7 @@ class alpha_beta_pruning:
                 return col
 
 
-    def node_children(state) :
+    def node_children(self, state) :
         for col in range(7):
             row = state.find_row(col)
             if  row != -1 :

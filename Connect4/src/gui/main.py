@@ -265,3 +265,4 @@ class GUI:
         self.__refresh_info()
         self.grid_array = self.__init_grid_array()
         self.grid_frame.winfo_children()[0].itemconfig("all", fill = "antiquewhite")
+GUI()
