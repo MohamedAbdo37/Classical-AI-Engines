@@ -77,4 +77,25 @@ def test_envi_state_is_terminal_2():
 def test_envi_state_increase_col():
     state = EnviState()
     state.increase_col(0)
-    assert state.cols.decode("ASCII") == '1000000'
+    assert state.cols == '1000000'
+
+def test_envi_state_find_row():
+    state = EnviState()
+    assert state.find_row(0) == 0
+    
+    state = EnviState()
+    state.cols = '6666666'
+    assert state.find_row(0) == -1
+    
+    state = EnviState()
+    state.cols = '3000000'
+    assert state.find_row(0) == 3
+    
+def test_envi_state_play_at():
+    state = EnviState()
+    state.play_at('x', 0)
+    assert state.slot(0, 0) == 'x'
+    state.play_at('o', 0)
+    assert state.slot(1, 0) == 'o'
+    
+    
