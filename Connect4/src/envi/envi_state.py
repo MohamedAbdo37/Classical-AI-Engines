@@ -16,6 +16,16 @@ class EnviState:
         self.blocked_seqs = 0
         self.red_last = -1
         self.blue_last = -1
+        #initialize the children with the default value
+        self.children = [] 
+        #initialize the depth with the default value
+        self.depth = 0
+        #initialize the turn with the default value
+        self.turn = 1
+        #initialize the node_name with the default value for building tree
+        self.node_name = ''
+        #initialize the utility with the default value for building tree
+        self.utility = None
     
     def get_board_2d(self):
         """
