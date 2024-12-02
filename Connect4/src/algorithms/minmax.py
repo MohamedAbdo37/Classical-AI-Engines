@@ -90,8 +90,9 @@ class minmax:
         return minimum_utility , minimum_child
 
 
-    def minmax(self, initial_state, k, turn):
-        _ , child = self.maximize(initial_state , k , turn)
+    def minmax(self, initial_state, k):
+        print(initial_state, k, initial_state.turn)
+        _ , child = self.maximize(initial_state , k , initial_state.turn)
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
                 return col, initial_state

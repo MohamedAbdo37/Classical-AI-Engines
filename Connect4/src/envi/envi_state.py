@@ -7,7 +7,7 @@ class EnviState:
         """Initialize the EnviState with default values."""
         if s is None:
             # Initialize the board with an empty state
-            self.board = b'\0\0\0\0\0\0\0\0\0\0\0\0'
+            self.board = '\0\0\0\0\0\0\0\0\0\0\0\0'.encode("ASCII")
             # Initialize the list of red player moves
             self.red = 0
             # Initialize the list of blue player moves
@@ -17,6 +17,16 @@ class EnviState:
             self.blocked_seqs = 0
             self.red_last = -1
             self.blue_last = -1
+            #initialize the children with the default value
+            self.children = [] 
+            #initialize the depth with the default value
+            self.depth = 0
+            #initialize the turn with the default value
+            self.turn = 1
+            #initialize the node_name with the default value for building tree
+            self.node_name = ''
+            #initialize the utility with the default value for building tree
+            self.utility = None
         else:
             self.board = s.board
             self.red = s.red
@@ -25,6 +35,16 @@ class EnviState:
             self.blocked_seqs = s.blocked_seqs
             self.red_last = s.red_last
             self.blue_last = s.blue_last
+            #initialize the children with the default value
+            self.children = s.children.copy()
+            #initialize the depth with the default value
+            self.depth = s.depth
+            #initialize the turn with the default value
+            self.turn = s.turn
+            #initialize the node_name with the default value for building tree
+            self.node_name = s.node_name
+            #initialize the utility with the default value for building tree
+            self.utility = s.utility
             
         self.grid = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
     
