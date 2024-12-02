@@ -18,9 +18,9 @@ def chanceNode(col, children):
     else:
         return children[col-1] * 0.2 + children[col] * 0.6 + children[col+1] * 0.2
 
-def maximize(state, k, mode, p=False, i=None):
+def maximize(state, k, p=False, i=None):
     if k <= -1 or state.is_terminal():
-        return None, state.heuristic(mode) 
+        return None, state.heuristic() 
     
     maxChild , maxUtility = None, float('-inf')
     
@@ -38,7 +38,7 @@ def maximize(state, k, mode, p=False, i=None):
         #     threads.append(threading.Thread(target=state.heuristic, args=(mode,children, col)))
         #     threads[col].start()
         # else:
-        utility = minimize(child, k-2, mode)[1]
+        utility = minimize(child, k-2)[1]
         children.append(utility)
 
     # for thread in threads:
@@ -56,9 +56,9 @@ def maximize(state, k, mode, p=False, i=None):
         
     return maxChild, maxUtility
 
-def minimize(state, k, mode, p=False, i=None):
+def minimize(state, k, p=False, i=None):
     if k <= -1 or state.is_terminal():
-        return None, state.heuristic(mode) 
+        return None, state.heuristic() 
     
     minChild , minUtility = None, float('inf')
     
@@ -76,7 +76,7 @@ def minimize(state, k, mode, p=False, i=None):
         #     threads.append(threading.Thread(target=state.heuristic, args=(mode,children, col)))
         #     threads[col].start()
         # else:
-        utility = maximize(child, k-2, mode)[1]
+        utility = maximize(child, k-2)[1]
         
         children.append(utility)
             
