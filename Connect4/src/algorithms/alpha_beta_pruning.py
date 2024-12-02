@@ -1,5 +1,6 @@
 from numpy import maximum
 from src.envi.envi_state import EnviState
+import time
 
 
 class alpha_beta_pruning:
@@ -26,7 +27,6 @@ class alpha_beta_pruning:
         maximum_utility = float('-inf')
         maximum_child = None
 
-        self.node_children(state)
         self.node_children(state)
         for child in state.children :
             utility , _ = self.minimize(child , k , turn , alpha , beta) # type: ignore
@@ -101,7 +101,7 @@ class alpha_beta_pruning:
         for col in range(7):
             row = state.find_row(col)
 
-            if  row != -1 :
+            if  row < 6 :
                 child = state.copy()
                 child.children.clear() 
 
@@ -117,9 +117,11 @@ class alpha_beta_pruning:
                     child.turn = 1
                 state.children.append(child)
 
-
-initial_state = EnviState()
-s = alpha_beta_pruning()
-s.minmax_pruning(initial_state , 3)
+for i in range (8) :
+    initial_state = EnviState()
+    s = alpha_beta_pruning()
+    start = time.time()
+    s.minmax_pruning(initial_state , i+1)
+    print('depth = ' + str(i+1)+ ' , time = ' + str(time.time() - start))
 
 #py -m src.algorithms.alpha_beta_pruning
