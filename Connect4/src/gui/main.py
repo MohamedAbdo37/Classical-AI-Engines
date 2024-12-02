@@ -7,7 +7,6 @@ from src.envi.tree_generation import tree_generation
 from src.algorithms.minmax import minmax
 
 # from src.algorithms.expected_minmax import expected_minmax
-# print("lksdjfl")
 
 from src.algorithms.alpha_beta_pruning import alpha_beta_pruning
 from src.envi.envi_state import EnviState
@@ -182,6 +181,7 @@ class GUI:
             initial_state.play_at('o', 0)
             play_col, state = minmax().minmax(self.board.copy(), int(self.k))
         elif (self.ai_algorithm == "MinMax with Pruning"):
+            play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
             play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
         # else :
         #     play_col, tree_file = expected_minmax().decision(self.board.copy, self.k, 1)
