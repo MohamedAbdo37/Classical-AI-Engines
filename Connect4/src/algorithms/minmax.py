@@ -1,9 +1,9 @@
-
 from time import time_ns
+from numpy import maximum
 from src.envi.envi_state import EnviState
 
 
-class min_max:
+class minmax:
 
     def maximize(self, state , k , turn):
 
@@ -16,6 +16,7 @@ class min_max:
                 return state.utility , None
 
         if state.depth == k :
+            # print(state.depth)
             if(turn==1):
                 state.utility = state.heuristic(1)
                 return state.utility , None
@@ -27,10 +28,11 @@ class min_max:
         maximum_child = None
 
         self.node_children(state)
+        self.node_children(state)
         for child in state.children :
-            utility = self.minimize(child , k , turn)
+            utility , _ = self.minimize(child , k , turn) # type: ignore
 
-            if utility[0] > maximum_utility :
+            if utility > maximum_utility :
                 maximum_utility = utility
                 maximum_child = child.copy()
 
@@ -53,6 +55,7 @@ class min_max:
 
                 
         if state.depth == k :
+            # print(state.depth) 
             if(turn==1):
                 state.utility = state.heuristic(1)
                 return state.utility , None
@@ -63,14 +66,15 @@ class min_max:
 
         minimum_utility = float('inf')
         minimum_child = None
-
+        
         self.node_children(state)
         for child in state.children :
-            utility = self.maximize(child , k , turn)
+            utility , _ = self.maximize(child , k , turn)
 
-            if utility[0] < minimum_utility :
+            if utility < minimum_utility :
                 minimum_utility = child.utility
                 minimum_child = child.copy()
+
 
         state.utility = minimum_utility
         return minimum_utility , minimum_child
@@ -78,36 +82,38 @@ class min_max:
 
     def minmax(self, initial_state, k):
         _ , child = self.maximize(initial_state , k , initial_state.turn)
-        cols1 = child.cols.decode("ASCII")
-        cols2 = initial_state.cols.decode("ASCII")
 
         for col in range (7) :
-            if(cols1[col] != cols2[col]) :
+            if(child.cols[col] != initial_state.cols[col]) :
                 return col
 
 
     def node_children(self, state) :
         for col in range(7):
             row = state.find_row(col)
+
             if  row != -1 :
                 child = state.copy()
-                if state.turn == 1 :
-                    child.set_slot(row , col , 'x')
-                elif state.turn == 2:
-                    child.set_slot(row , col , 'o')
+                child.children.clear() 
 
-                child.increase_col(col)
-                child.depth = child.depth+1
-                state.children.append(child)
+                if state.turn == 1 :
+                    child.play_at('x' , col)
+                elif state.turn == 2:
+                    child.play_at('o' , col)
+
+                child.depth = state.depth+1
                 if state.turn ==1 :
                     child.turn =2
                 else :
                     child.turn = 1
+                state.children.append(child)
 
-state = EnviState()
-minmax = min_max()
-print(1)
+
+initial_state = EnviState()
+s = minmax()
 start_time = time_ns()
-print( minmax.minmax(state, 1))
+s.minmax(initial_state , 5)
 end_time = time_ns()
-print((end_time - start_time) / 1_000_000)
+print((end_time - start_time) / (1_000_000_000*60), "min")
+
+#py -m src.algorithms.alpha_beta_pruning
