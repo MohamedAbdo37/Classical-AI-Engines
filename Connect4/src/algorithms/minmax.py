@@ -82,7 +82,7 @@ class minmax:
             utility , _ = self.maximize(child , k , turn)
 
             if utility < minimum_utility :
-                minimum_utility = child.utility
+                minimum_utility = utility
                 minimum_child = child.copy()
 
 
@@ -91,11 +91,11 @@ class minmax:
 
 
     def minmax(self, initial_state, k):
+        print(initial_state, k, initial_state.turn)
         _ , child = self.maximize(initial_state , k , initial_state.turn)
-
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
-                return col
+                return col, tree_generation.generating_tree(initial_state)
 
 
     def node_children(self, state) :
@@ -119,13 +119,14 @@ class minmax:
                 state.children.append(child)
 
 
-initial_state = EnviState()
-s = minmax()
-for i in range(1, 9):
-    start_time = time_ns()
-    s.minmax(initial_state , i)
-    end_time = time_ns()
-    tree_path = tree_generation.generating_tree(initial_state)
-    print(f"k={i}: ",(end_time - start_time) / (1_000_000_000*60), "min", f"\nTree Path: {tree_path}")
+# initial_state = EnviState()
+# initial_state.play_at('o', 0)
+# s = minmax()
+# for i in range(1, 9):
+#     start_time = time_ns()
+#     play , tree_path = s.minmax(initial_state , i)
+#     print(initial_state)
+#     end_time = time_ns()
+#     print(f"play={play}, k={i}: ",(end_time - start_time) / (1_000_000_000*60), "min", f"\nTree Path: {tree_path}")
 
 #py -m src.algorithms.alpha_beta_pruning

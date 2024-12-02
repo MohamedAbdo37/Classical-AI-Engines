@@ -17,7 +17,7 @@ class alpha_beta_pruning:
                 return state.utility , None
 
         if state.depth == k :
-            print(state.depth)
+            # print(state.depth)
             if(turn==1):
                 state.utility = state.heuristic(1)
                 return state.utility , None
@@ -60,7 +60,7 @@ class alpha_beta_pruning:
 
                 
         if state.depth == k :
-            print(state.depth) 
+            # print(state.depth) 
             if(turn==1):
                 state.utility = state.heuristic(1)
                 return state.utility , None
@@ -96,15 +96,15 @@ class alpha_beta_pruning:
 
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
-                return col
+                return col, tree_generation.generating_tree(initial_state)
 
 
-for i in range (4) :
-    initial_state = EnviState()
-    s = alpha_beta_pruning()
-    start = time.time()
-    col = s.minmax_pruning(initial_state , i+1)
-    print('depth = ' + str(i+1)+ ' , time = ' + str(time.time() - start) + ' , col = ' + str(col))
-    tree_generation.generating_tree(initial_state)
+# for i in range (4) :
+#     initial_state = EnviState()
+#     s = alpha_beta_pruning()
+#     start = time.time()
+#     col, _ = s.minmax_pruning(initial_state , i+1)
+#     print('depth = ' + str(i+1)+ ' , time = ' + str(time.time() - start) + ' , col = ' + str(col))
+    
 
 #py -m src.algorithms.alpha_beta_pruning

@@ -65,9 +65,9 @@ class tree_generation :
                 num = num+1
                 queue.append(state.children[i])
         global count
-        print(count)
+        # print(count)
         # opening file
         dot.render('D://search tree' + str(count), format='svg')    
         
         count = count +1   
-        return 'D://search tree' + str(count) + '.svg'
+        return 'D://search tree' + str(count-1) + '.svg'
