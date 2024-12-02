@@ -90,33 +90,11 @@ class minmax:
         return minimum_utility , minimum_child
 
 
-    def minmax(self, initial_state, k):
-        print(initial_state, k, initial_state.turn)
-        _ , child = self.maximize(initial_state , k , initial_state.turn)
+    def minmax(self, initial_state, k, turn):
+        _ , child = self.maximize(initial_state , k , turn)
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
-                return col, tree_generation.generating_tree(initial_state)
-
-
-    def node_children(self, state) :
-        for col in range(7):
-            row = state.find_row(col)
-
-            if  row < 6 :
-                child = state.copy()
-                child.children.clear() 
-
-                if state.turn == 1 :
-                    child.play_at('x' , col)
-                elif state.turn == 2:
-                    child.play_at('o' , col)
-
-                child.depth = state.depth+1
-                if state.turn ==1 :
-                    child.turn =2
-                else :
-                    child.turn = 1
-                state.children.append(child)
+                return col, initial_state
 
 
 # initial_state = EnviState()

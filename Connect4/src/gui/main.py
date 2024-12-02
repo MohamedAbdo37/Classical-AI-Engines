@@ -3,10 +3,10 @@ import tkinter as tk
 from tkinter import ttk
 import subprocess
 import math
+from src.envi import tree_generation
 from src.algorithms.minmax import minmax
 
 # from src.algorithms.expected_minmax import expected_minmax
-# print("lksdjfl")
 
 from src.algorithms.alpha_beta_pruning import alpha_beta_pruning
 from src.envi.envi_state import EnviState
@@ -104,23 +104,23 @@ class GUI:
     def computer_play(self):
         """Set computer's play"""
         play_col = ''
-        tree_file = ''
+        state = None
+
+        start_time = time_ns()
         if (self.ai_algorithm == "MinMax without Pruning"):
-            initial_state = EnviState()
-            initial_state.play_at('o', 0)
-            play_col, tree_file = minmax().minmax(self.board.copy(), int(self.k))
-            print(tree_file)
+            play_col, state = minmax().minmax(self.board.copy(), int(self.k))
         elif (self.ai_algorithm == "MinMax with Pruning"):
-            play_col, tree_file = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
+            play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
         # else :
         #     play_col, tree_file = expected_minmax().decision(self.board.copy, self.k, 1)
+        finish_time = time_ns()
+
+        self.time = int(((finish_time - start_time) / (1_000_000_000))*100)/100
+        self.tree_file = tree_generation.generating_tree(state)
 
         # self.__set_play(self.__get_cell_id((play_col, 1)))   # for testing only
         self.__set_play(self.__get_cell_id((play_col, 1)), "Computer")    # in implementation
-        self.tree_file = tree_file
     
-    def user_play(self):
-        """Set the user's play"""
 
     def get_grid(self):
         """retuns the grid"""
@@ -222,10 +222,7 @@ class GUI:
                 self.player_color = self.computer_color
                 self.player = "Computer"
                 self.grid_frame.winfo_children()[0].itemconfig(self.__get_cell_id(correct_cell_coor), fill=current_color)
-                start_time = time_ns()
                 self.computer_play()
-                finish_time = time_ns()
-                self.time = int(((finish_time - start_time) / (1_000_000_000))*100)/100
                 self.__refresh_options()
                 self.__refresh_info()
 

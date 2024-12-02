@@ -91,12 +91,12 @@ class alpha_beta_pruning:
 
 
     # starting function
-    def minmax_pruning(self, initial_state, k):
-        _ , child = self.maximize(initial_state , k , initial_state.turn , float('-inf') , float('inf'))
+    def minmax_pruning(self, initial_state, k, turn):
+        _ , child = self.maximize(initial_state , k , turn , float('-inf') , float('inf'))
 
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
-                return col, tree_generation.generating_tree(initial_state)
+                return col, initial_state
 
 
 # for i in range (4) :
