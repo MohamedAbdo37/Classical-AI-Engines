@@ -27,6 +27,8 @@ class EnviState:
             self.node_name = ''
             #initialize the utility with the default value for building tree
             self.utility = None
+            #initialize the chance_nodes with the default value
+            self.chance_nodes = [0,0,0,0,0,0,0]
         else:
             self.board = s.board
             self.ai = s.ai
@@ -45,9 +47,12 @@ class EnviState:
             self.node_name = s.node_name
             #initialize the utility with the default value for building tree
             self.utility = s.utility
+            #initialize the chance_nodes with the default value
+            self.chance_nodes = s.chance_nodes
             
         self.GRID = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
         self.COLUMNS_WEIGHTS = [6, 12, 25, 25, 25, 12, 6]
+        
     
     def get_board_2d(self):
         """
@@ -316,6 +321,9 @@ class EnviState:
 
         score = 200 * self.ai_score()
         
+        if self.is_terminal():
+            return score + blocking
+        
         # Calculate the one-step chances to win
         one_step = 100 * self.one_step_chance('x')
         # Calculate the two-step chances to win
@@ -347,7 +355,10 @@ class EnviState:
             blocking = 125 * self.blocked_seqs
             
         
-        score = 200 * self.human_score()             
+        score = 200 * self.human_score()   
+        
+        if self.is_terminal():
+            return score + blocking          
         
         # Calculate the one-step, two-step, three-step, and four-step chances
         one_step = 100 * self.one_step_chance('o')
