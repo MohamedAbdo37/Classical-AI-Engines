@@ -8,22 +8,13 @@ class alpha_beta_pruning:
     expanded_nodes = 0
 
     # maximize function
-    def maximize(self, state , k , turn , alpha , beta):
+    def maximize(self, state , k , alpha , beta):
 
         # increase expanded nodes 
         self.expanded_nodes = self.expanded_nodes +1
 
-        # board is full
-        if state.is_terminal():
-            if(turn==1):
-                state.utility = state.ai_score() - state.human_score()
-                return state.utility , None
-            else :
-                state.utility = state.human_score() - state.ai_score()
-                return state.utility , None
-
-        # cut depth 
-        if state.depth == k :
+        # board is full or cut depth 
+        if state.is_terminal() or state.depth == k :
             state.utility = state.heuristic()
             return state.utility , None
 
@@ -33,9 +24,9 @@ class alpha_beta_pruning:
         maximum_child = None
 
         # generate node childs
-        tree_generation.node_children(state)
+        tree_generation.node_children(state , 'x')
         for child in state.children :
-            utility , _ = self.minimize(child , k , turn , alpha , beta) # type: ignore
+            utility , _ = self.minimize(child , k , alpha , beta) # type: ignore
 
             # check utility
             if utility > maximum_utility :
@@ -57,35 +48,25 @@ class alpha_beta_pruning:
 # ---------------------------------------------------------------------------------------------------
 
     # minimize function
-    def minimize(self, state , k , turn , alpha , beta):
+    def minimize(self, state , k , alpha , beta):
 
         # increase expanded nodes 
         self.expanded_nodes = self.expanded_nodes +1
 
-        # board is full
-        if state.is_terminal():
-            if(turn==1):
-                state.utility = state.ai_score() - state.human_score()
-                return state.utility , None
-            else :
-                state.utility = state.human_score() - state.ai_score()
-                return state.utility , None
-
-        # cut depth
-        if state.depth == k :
+        # board is full or cut depth 
+        if state.is_terminal() or state.depth == k :
             state.utility = state.heuristic()
             return state.utility , None
-
 
         # initialize utility and child
         minimum_utility = float('inf')
         minimum_child = None
         
         # generate node childs
-        tree_generation.node_children(state)
+        tree_generation.node_children(state , 'o')
 
         for child in state.children :
-            utility , _ = self.maximize(child , k , turn , alpha , beta)
+            utility , _ = self.maximize(child , k , alpha , beta)
 
             # check utility
             if utility < minimum_utility :
@@ -108,9 +89,14 @@ class alpha_beta_pruning:
 
     # starting function
     def minmax_pruning(self, initial_state, k):
-        _ , child = self.maximize(initial_state , k , initial_state.turn , float('-inf') , float('inf'))
+        _ , child = self.maximize(initial_state , k , float('-inf') , float('inf'))
 
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
                 return col, initial_state
-
+'''
+initial = EnviState()
+s = alpha_beta_pruning ()
+_ , initial = s.minmax_pruning(initial , 2)
+tree_generation.generating_tree(initial)
+'''
