@@ -138,8 +138,9 @@ def decision(state, k, p=False):
         
     Returns:
         int: The column of the best move.
+        EnviState: The updated state of the environment.
     """
     
     col = maximize(state, k-2)[0]
-    return col
+    return col, state
         
