@@ -18,16 +18,18 @@ def chanceNode(col, children):
     else:
         return children[col-1] * 0.2 + children[col] * 0.6 + children[col+1] * 0.2
 
-def maximize(state, k, mode, p=False, i=None):
+def maximize(state, k, p=False, i=None):
     if k <= -1 or state.is_terminal():
-        return None, state.heuristic(mode) 
+        return None, state.heuristic() 
     
     maxChild , maxUtility = None, float('-inf')
     
     children = []
-    threads = []
+    # threads = []
+    
     for col in range(7):
         child = state.copy()
+        
         try:
             child.play_at('x', col)
         except:
@@ -38,7 +40,7 @@ def maximize(state, k, mode, p=False, i=None):
         #     threads.append(threading.Thread(target=state.heuristic, args=(mode,children, col)))
         #     threads[col].start()
         # else:
-        utility = minimize(child, k-2, mode)[1]
+        _ , utility = minimize(child, k-2)
         children.append(utility)
 
     # for thread in threads:
@@ -56,9 +58,9 @@ def maximize(state, k, mode, p=False, i=None):
         
     return maxChild, maxUtility
 
-def minimize(state, k, mode, p=False, i=None):
+def minimize(state, k, p=False, i=None):
     if k <= -1 or state.is_terminal():
-        return None, state.heuristic(mode) 
+        return None, state.heuristic() 
     
     minChild , minUtility = None, float('inf')
     
@@ -76,7 +78,7 @@ def minimize(state, k, mode, p=False, i=None):
         #     threads.append(threading.Thread(target=state.heuristic, args=(mode,children, col)))
         #     threads[col].start()
         # else:
-        utility = maximize(child, k-2, mode)[1]
+        utility = maximize(child, k-2)[1]
         
         children.append(utility)
             
@@ -93,14 +95,20 @@ def minimize(state, k, mode, p=False, i=None):
         
     return minChild, minUtility
 
-def decision(state, k, mode, p=False):
+def decision(state, k, p=False):
+    """
+    This function makes a decision based on the Expected Minimax algorithm.
     
-    
-    if mode == 1:
-        col = maximize(state, k-2, mode)[0]
-    else:
-        col,= minimize(state, k-2, mode)[0]
+    Parameters:
+        state (EnviState): The current state of the environment.
+        k (int): The depth of the search tree. 
+        p (bool): Whether to use parallel processing or not. Default is False.
         
+    Returns:
+        int: The column of the best move.
+    """
+    
+    col = maximize(state, k-2)[0]
     return col
         
         # columns = [0]*7
@@ -108,30 +116,37 @@ def decision(state, k, mode, p=False):
         # if k < 4:
         #     col = -1 
         #     if mode == 1:
+        #         # If the mode is 1 and k is less than 4, call the maximize function
         #         col = maximize(state, k-2, mode)[0]
         #     else:
+        #         # If the mode is -1 and k is less than 4, call the minimize function
         #         col,= minimize(state, k-2, mode)[0]
                 
         #     return col
         # else:
+        #     # If k is greater than or equal to 4, use parallel processing
         #     threads = []
         #     if mode == 1:
+        #         # If the mode is 1, start a thread for each column
         #         for i in range(7):
         #             threads.append(threading.Thread(target=minimize, args=(state, k-2, mode, True, i)))
                     
         #             threads[i].start()
         #     else:
+        #         # If the mode is -1, start a thread for each column
         #         for i in range(7):
         #             threads.append(threading.Thread(target=maximize, args=(state, k-2, mode, True, i)))
         #             threads[i].start()
             
                 
+        #     # Wait for all threads to finish
         #     while len(columns) < 7:
         #         time.sleep(0.5)
             
         #     # for thread in threads:
         #     #     thread.join()
 
+        #     # If the mode is 1, find the maximum value in the columns list
         #     if mode == 1:
         #         max = float('-inf')
         #         for i in columns:
@@ -139,6 +154,7 @@ def decision(state, k, mode, p=False):
         #                 max = i
         #         return max
             
+        #     # If the mode is -1, find the minimum value in the columns list
         #     else:
         #         min = float('inf')
         #         for i in columns:

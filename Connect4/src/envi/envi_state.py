@@ -8,15 +8,15 @@ class EnviState:
         if s is None:
             # Initialize the board with an empty state
             self.board = '\0\0\0\0\0\0\0\0\0\0\0\0'.encode("ASCII")
-            # Initialize the list of red player moves
-            self.red = 0
-            # Initialize the list of blue player moves
-            self.blue = 0
+            # Initialize the list of ai player moves
+            self.ai = 0
+            # Initialize the list of human player moves
+            self.human = 0
             # Initialize the columns with default values
             self.cols = '0000000'
             self.blocked_seqs = 0
-            self.red_last = -1
-            self.blue_last = -1
+            self.ai_last = -1
+            self.human_last = -1
             #initialize the children with the default value
             self.children = [] 
             #initialize the depth with the default value
@@ -29,12 +29,12 @@ class EnviState:
             self.utility = None
         else:
             self.board = s.board
-            self.red = s.red
-            self.blue = s.blue  
+            self.ai = s.ai
+            self.human = s.human  
             self.cols = s.cols
             self.blocked_seqs = s.blocked_seqs
-            self.red_last = s.red_last
-            self.blue_last = s.blue_last
+            self.ai_last = s.ai_last
+            self.human_last = s.human_last
             #initialize the children with the default value
             self.children = s.children.copy()
             #initialize the depth with the default value
@@ -46,7 +46,8 @@ class EnviState:
             #initialize the utility with the default value for building tree
             self.utility = s.utility
             
-        self.grid = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
+        self.GRID = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
+        self.COLUMNS_WEIGHTS = [6, 12, 25, 25, 25, 12, 6]
     
     def get_board_2d(self):
         """
@@ -150,8 +151,8 @@ class EnviState:
         Returns
         -------
         str
-            'x' if the slot is occupied by the red player,
-            'o' if occupied by the blue player,
+            'x' if the slot is occupied by the ai player,
+            'o' if occupied by the human player,
             'e' if empty.
         """
         # Check if the row or column is out of bounds
@@ -161,7 +162,7 @@ class EnviState:
         # Get the character representing the specified row's first byte
         r = self.board[(5-row)*2]
 
-        # Determine if the slot is occupied by the red player
+        # Determine if the slot is occupied by the ai player
         # Check the least significant bit of the byte by shifting it to the right
         # and then check if the result is 1
         s = (r & 64 >> col)  # 64 is the ASCII value of '@'
@@ -172,7 +173,7 @@ class EnviState:
         # Get the character representing the specified row's second byte
         r = self.board[(5-row)*2+1]
 
-        # Determine if the slot is occupied by the blue player
+        # Determine if the slot is occupied by the human player
         # Check the least significant bit of the byte by shifting it to the right
         # and then check if the result is 1
         s = (r & 64 >> col)
@@ -205,7 +206,7 @@ class EnviState:
         s = 64 >> col
 
         if value == 'x':
-            # Set the red player's slot
+            # Set the ai player's slot
             # Set the least significant bit of the byte at the specified row
             # and column to 1
             r = self.board[(5-row)*2]
@@ -215,7 +216,7 @@ class EnviState:
             r = self.board[(5-row)*2+1]
             self.chage_char((5-row)*2+1, chr(r & ~s))
         elif value == 'o':
-            # Set the blue player's slot
+            # Set the human player's slot
             # Set the least significant bit of the byte at the specified row
             # and column to 1
             r = self.board[(5-row)*2+1]
@@ -283,24 +284,24 @@ class EnviState:
         
         if player == 'x':
             self.blocked_seqs = self.new_points(row, col,'o')
-            self.red_last = col
+            self.ai_last = col
         else:
             self.blocked_seqs = self.new_points(row, col,'x')
-            self.blue_last = col
+            self.human_last = col
             
         self.set_slot(row, col, player)
         self.increase_col(col)
         
         if player == 'x':
-            self.red += self.new_points(row, col,'x')
+            self.ai += self.new_points(row, col,'x')
         else:
-            self.blue += self.new_points(row, col,'o')
+            self.human += self.new_points(row, col,'o')
 
 
         
-    def red_weight(self):
+    def ai_weight(self):
         
-        col = self.red_last
+        col = self.ai_last
         if col == -1:
             return 0
         row = self.find_row(col) - 1
@@ -313,7 +314,7 @@ class EnviState:
         if self.slot(row, col) != 'x':
             blocking = 125 * self.blocked_seqs
 
-        score = 200 * self.red_score()
+        score = 200 * self.ai_score()
         
         # Calculate the one-step chances to win
         one_step = 100 * self.one_step_chance('x')
@@ -323,7 +324,7 @@ class EnviState:
         # three_step = 25 * self.three_step_chance('x', col)
         
         # Calculate the weight based on the score and the number of chances to win
-        weight = score + one_step + two_step + blocking
+        weight = score + one_step + two_step + blocking + self.COLUMNS_WEIGHTS[col]
         
         # Delete the set of chances to gain at least one point
         del self.chance_set
@@ -332,9 +333,9 @@ class EnviState:
         return weight 
 
 
-    def blue_weight(self):
+    def human_weight(self):
         
-        col = self.blue_last
+        col = self.human_last
         if col == -1:
             return 0
         row = self.find_row(col) - 1
@@ -346,15 +347,14 @@ class EnviState:
             blocking = 125 * self.blocked_seqs
             
         
-        score = 200 * self.blue_score()             
+        score = 200 * self.human_score()             
         
         # Calculate the one-step, two-step, three-step, and four-step chances
         one_step = 100 * self.one_step_chance('o')
         two_step = 50 * self.two_step_chance('o', col)
-        # three_step = 25 * self.three_step_chance('o', col)
         
         # Calculate the weight
-        weight = score + one_step + two_step + blocking
+        weight = score + one_step + two_step + blocking + self.COLUMNS_WEIGHTS[col]
         
         # Remove the set of chances
         del self.chance_set
@@ -384,7 +384,7 @@ class EnviState:
         points = 0
         
         
-        for move in self.grid:
+        for move in self.GRID:
                 # Check if the move is out of bounds
                 if row + move[0] < 0 or row + move[0] > 5 or col + move[1] < 0 or col + move[1] > 6:
                     continue
@@ -396,29 +396,29 @@ class EnviState:
         
         return points
     
-    def blue_score(self):
+    def human_score(self):
         """
-        Return the score of the blue player.
+        Return the score of the human player.
 
         Returns
         -------
         int
-            The score of the blue player.
+            The score of the human player.
         """
-        # Convert the blue player's score from a byte to an integer
-        return self.blue
+        # Convert the human player's score from a byte to an integer
+        return self.human
     
-    def red_score(self):
+    def ai_score(self):
         """
-        Return the score of the red player.
+        Return the score of the ai player.
 
         Returns
         -------
         int
-            The score of the red player.
+            The score of the ai player.
         """
-        # Convert the red player's score from a byte to an integer
-        return self.red
+        # Convert the ai player's score from a byte to an integer
+        return self.ai
     
     def one_step_chance(self, player, c = -1):
         """
@@ -432,7 +432,7 @@ class EnviState:
         ----------
         player : str
             The player for whom the chances are being calculated ('x' for 
-            red player and 'o' for blue player).
+            ai player and 'o' for human player).
         c : int, optional
             The specific column to evaluate for chances. If set to -1, 
             evaluates all columns on the board.
@@ -454,7 +454,7 @@ class EnviState:
                     continue
                 
                 # Check if the point is occupied by the given player
-                for move in self.grid:
+                for move in self.GRID:
                     if (col + 7 * row) not in self.chance_set and self.chance_point(row, col, move, player):
                         chances += 1
                         self.chance_set.add(col + 7 * row)
@@ -467,7 +467,7 @@ class EnviState:
                 return 0
             
             # Check if the point is occupied by the given player
-            for move in self.grid:
+            for move in self.GRID:
                 if (col + 7 * row) not in self.chance_set and self.chance_point(row, col, move, player):
                     chances += 1
                     self.chance_set.add(col + 7 * row)
@@ -517,8 +517,8 @@ class EnviState:
         if state == None:
             state = self
         else:
-            state.red = None
-            state.blue = None
+            state.ai = None
+            state.human = None
         
         
         # Get the current row to drop the player's piece
@@ -555,8 +555,8 @@ class EnviState:
         if state == None:
             state = self
         else:
-            state.red = None
-            state.blue = None
+            state.ai = None
+            state.human = None
         
         
         # Get the current row to drop the player's piece
@@ -644,44 +644,36 @@ class EnviState:
         return False
 
     
-    def heuristic(self, mode, c=None, col=None):
+    def heuristic(self, c=None, col=None):
         """
         Calculate a heuristic value for the current state.
 
         The heuristic value is a measure of how good the current state is for
         the given player. The heuristic value is calculated as the difference
-        between the estimated score of the red player and the estimated score
-        of the blue player.
+        between the estimated score of the ai player and the estimated score
+        of the human player.
 
         Parameters
         ----------
-        mode : int
-            The player for which the heuristic value is calculated.
-            if mode = 1, then player 1 is the AI engine.
-            if mode = 2, then player 2 is the AI engine.
+        c : list, optional
+            A list of heuristic values for each column. If provided, the heuristic
+            value for the specified column will be updated in the list. Default is None.
+        col : int, optional
+            The index of the column to calculate the heuristic value for. If provided,
+            the heuristic value for the specified column will be returned. Default is None.
 
         Returns
         -------
         int
             The heuristic value of the current state for the given player.
-        """
-        if mode == 1:
-            # Calculate the heuristic value for the red player
-            
-            t = self.red_weight() - self.blue_weight()
-            if c != None and col != None:
-                c[col] = t
-                print(t)
-            return t
-        elif mode == 2:
-            # Calculate the heuristic value for the blue player.
-            t = self.blue_weight() - self.red_weight()
-            if c != None and col != None:
-                c[col] = t
-                print(t)
-            return t
-        else:
-            raise ValueError("Invalid mode")
+        """ 
+        # Calculate the heuristic value for the AI engine
+        
+        t = self.ai_weight() - self.human_weight()
+        if c != None and col != None:
+            c[col] = t
+            print(t)
+        return t
 
 
     def increase_col(self, col):
