@@ -5,24 +5,15 @@ count = 1
 class tree_generation :
 
     # generating children of a node
-    def node_children(state) :
+    def node_children(state , value) :
         for col in range(7):
             row = state.find_row(col)
 
             if  row < 6 :
                 child = state.copy()
                 child.children.clear() 
-
-                if state.turn == 1 :
-                    child.play_at('x' , col)
-                elif state.turn == 2:
-                    child.play_at('o' , col)
-
+                child.play_at(value , col)
                 child.depth = state.depth+1
-                if state.turn ==1 :
-                    child.turn =2
-                else :
-                    child.turn = 1
                 state.children.append(child)
 
 # --------------------------------------------------------------------------------
@@ -113,10 +104,14 @@ class tree_generation :
                         color = 'purple' 
 
                     
-                    dot.node('chance' + str(chance_num), '' , shape = 'circle' , color = 'yellow' , style = 'filled')
-                    dot.edge(state.node_name , 'chance' + str(chance_num))
                         
                     if (state.chance_nodes[col]) == 3 :
+
+                        chance_value = .2*state.children[col-1].utility + .6*state.children[col].utility + .2*state.children[col+1].utility
+                        chance_value = round (chance_value , 3)
+                        dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
+                        dot.edge(state.node_name , 'chance' + str(chance_num))
+
 
                         state.children[col-1].node_name = 'node' + str(num)
                         dot.node(state.children[col-1].node_name, tree_generation.tree_node(state.children[col-1]) , shape = shape , color = color , style = 'filled')
@@ -141,6 +136,12 @@ class tree_generation :
 
                     elif (state.chance_nodes[col]) == 2 :
                         if col ==0 :
+
+                            chance_value = .6*state.children[col].utility + .4*state.children[col+1].utility
+                            chance_value = round (chance_value , 3)
+                            dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
+                            dot.edge(state.node_name , 'chance' + str(chance_num))
+
                             state.children[col].node_name = 'node' + str(num)
                             dot.node(state.children[col].node_name, tree_generation.tree_node(state.children[col]) , shape = shape , color = color , style = 'filled')
                             num = num+1
@@ -156,6 +157,13 @@ class tree_generation :
 
 
                         elif col == 6 :
+
+                            chance_value = .6*state.children[col].utility + .4*state.children[col-1].utility
+                            chance_value = round (chance_value , 3)
+                            dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
+                            dot.edge(state.node_name , 'chance' + str(chance_num))
+
+
                             state.children[col-1].node_name = 'node' + str(num)
                             dot.node(state.children[col-1].node_name, tree_generation.tree_node(state.children[col-1]) ,  shape = shape , color = color , style = 'filled')
                             num = num+1
@@ -173,6 +181,13 @@ class tree_generation :
 
                         else :
                             if state.children[col-1] == None :
+
+                                chance_value = .6*state.children[col].utility + .4*state.children[col+1].utility
+                                chance_value = round (chance_value , 3)
+                                dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
+                                dot.edge(state.node_name , 'chance' + str(chance_num))
+
+
                                 state.children[col].node_name = 'node' + str(num)
                                 dot.node(state.children[col].node_name, tree_generation.tree_node(state.children[col]) ,  shape = shape , color = color , style = 'filled')
                                 num = num+1
@@ -187,6 +202,13 @@ class tree_generation :
                                 queue.append(state.children[col+1].copy())
 
                             else :
+
+                                chance_value = .6*state.children[col].utility + .4*state.children[col-1].utility
+                                chance_value = round (chance_value , 3)
+                                dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
+                                dot.edge(state.node_name , 'chance' + str(chance_num))
+
+
                                 state.children[col-1].node_name = 'node' + str(num)
                                 dot.node(state.children[col-1].node_name, tree_generation.tree_node(state.children[col-1]) ,  shape = shape , color = color , style = 'filled')
                                 num = num+1
@@ -201,6 +223,12 @@ class tree_generation :
                                 queue.append(state.children[col].copy())
 
                     else :
+                        chance_value = state.children[col].utility
+                        chance_value = round (chance_value , 3)
+                        dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
+                        dot.edge(state.node_name , 'chance' + str(chance_num))
+
+
                         state.children[col].node_name = 'node' + str(num)
                         dot.node(state.children[col].node_name, tree_generation.tree_node(state.children[col]) ,  shape = shape , color = color , style = 'filled')
                         num = num+1
@@ -209,6 +237,9 @@ class tree_generation :
                         queue.append(state.children[col].copy())
                     
                     chance_num = chance_num + 1
+                    
+
+                
 
         global count
         # opening file
