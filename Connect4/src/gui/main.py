@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import subprocess
 import math
 
 # default user plays first with blue and computer with red peices 
@@ -19,6 +20,7 @@ class GUI:
         self.grid_string_array = []
         self.AI_algorithm = "MinMax without Pruning"
         self.k = 8
+        self.tree_file = ''
 
         # Create the main window of size 1400x600
         self.root = tk.Tk()
@@ -61,7 +63,8 @@ class GUI:
         # Creating tree area
         self.tree_frame = tk.Frame(bg="antiquewhite")
         self.tree_frame.pack(side="top", fill="both")
-        # self.__create_tree()
+        self.tree_button = tk.Button(self.tree_frame, text="Show Tree", command= self.show_tree, width=10, cursor="hand2")
+        self.tree_button.pack()
 
         self.root.mainloop()
 
@@ -78,10 +81,16 @@ class GUI:
     
         self.__refresh_info()
 
-    def computer_play(self, play_coordinates):
+    def show_tree(self):
+        command = f'D: & \"{self.tree_file}\"'
+        subprocess.run(command, shell=True, capture_output=True, text=True)
+
+
+    def computer_play(self, play_col, tree_file):
         """Set computer's play"""
-        self.__set_play(self.__get_cell_id(play_coordinates))   # for testing only
+        self.__set_play(self.__get_cell_id((play_col, 1)))   # for testing only
         # self.__set_play(self.__get_cell_id(play_coordinates, "Computer"))    # in implementation
+        self.tree_file = tree_file
 
     def get_grid(self):
         """retuns the grid"""

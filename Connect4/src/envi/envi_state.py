@@ -300,7 +300,7 @@ class EnviState:
         self.chance_set = {}
         # Initialize the score to 0
         blocking = 0
-        print(row, col)
+        # print(row, col)
         if self.slot(row, col) != 'x':
             blocking = 125 * self.blocked_seqs
 

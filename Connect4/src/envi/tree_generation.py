@@ -70,3 +70,4 @@ class tree_generation :
         dot.render('D://search tree' + str(count), format='svg')    
         
         count = count +1   
+        return 'D://search tree' + str(count) + '.svg'
