@@ -11,11 +11,6 @@ from src.algorithms.minmax import minmax
 from src.algorithms.alpha_beta_pruning import alpha_beta_pruning
 from src.envi.envi_state import EnviState
 
-color_dic = {
-        "red" : 'x',
-        "blue": 'o',
-        "antiquewhite": 'e'
-    }
 # default user plays first with blue and computer with red peices 
 # default AI algorithm used is MinMax without Pruning with k = 8
 class GUI:
@@ -31,16 +26,18 @@ class GUI:
         self.user_score = 0
         self.computer_score = 0
         self.grid_array = self.__init_grid_array()
-        self.ai_algorithm = "MinMax without Pruning"
+        self.ai_algorithm = "MinMax without Pruning" # type: ignore
         self.k = 1
         self.time = 0
         self.tree_file = ''
         self.board = EnviState()
+
         # Create the main window of size 1400x600
         self.root = tk.Tk()
         self.root.geometry("1400x600")
         self.root.title("7x6 Connect 4")
         self.root.config(bg="antiquewhite")
+
         # Creating grid frame (7x6 table with circular cells of radius 20 = 700x600)
         self.grid_frame = tk.Frame()
         self.grid_frame.pack(side="right")
@@ -96,12 +93,7 @@ class GUI:
         else:
             self.info_frame.winfo_children()[0].configure(text="Draw", fg="green")
 
-
-    def calculate_scores(self, board):
-        rows = len(board)
-        cols = len(board[0])
-
-        def check_line(line):
+    def check_line(self, line):
             """Check if there is a Connect 4 in the line, allowing overlapping."""
             count_x, count_o = 0, 0
             score_x, score_o = 0, 0
@@ -124,19 +116,23 @@ class GUI:
                     score_o += 1
 
             return score_x, score_o
+    
+    def calculate_scores(self, board):
+        rows = len(board)
+        cols = len(board[0])
 
         total_score_x, total_score_o = 0, 0
 
         # Check rows
         for row in board:
-            sx, so = check_line(row)
+            sx, so = self.check_line(row)
             total_score_x += sx
             total_score_o += so
 
         # Check columns
         for col in range(cols):
             column = [board[row][col] for row in range(rows)]
-            sx, so = check_line(column)
+            sx, so = self.check_line(column)
             total_score_x += sx
             total_score_o += so
 
@@ -144,7 +140,7 @@ class GUI:
         for r in range(rows - 3):
             for c in range(cols - 3):
                 diagonal = [board[r + i][c + i] for i in range(4)]
-                sx, so = check_line(diagonal)
+                sx, so = self.check_line(diagonal)
                 total_score_x += sx
                 total_score_o += so
 
@@ -152,7 +148,7 @@ class GUI:
         for r in range(3, rows):
             for c in range(cols - 3):
                 diagonal = [board[r - i][c + i] for i in range(4)]
-                sx, so = check_line(diagonal)
+                sx, so = self.check_line(diagonal)
                 total_score_x += sx
                 total_score_o += so
 
@@ -161,13 +157,8 @@ class GUI:
     def set_score(self):
         """Sets the scores of players"""
         score_x, score_o = self.calculate_scores(self.board.get_board_2d())
-        if (color_dic[self.computer_color] == 'x'):
-            self.computer_score = score_x
-            self.user_score = score_o
-        else:
-            self.computer_score = score_o
-            self.user_score = score_x
-    
+        self.computer_score = score_x
+        self.user_score = score_o
         self.__refresh_info()
 
     def show_tree(self):
@@ -181,11 +172,8 @@ class GUI:
         state = None
         start_time = time_ns()
         if (self.ai_algorithm == "MinMax without Pruning"):
-            initial_state = EnviState()
-            initial_state.play_at('o', 0)
             play_col, state = minmax().minmax(self.board.copy(), int(self.k))
         elif (self.ai_algorithm == "MinMax with Pruning"):
-            play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
             play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
         # else :
         #     play_col, tree_file = expected_minmax().decision(self.board.copy, self.k, 1)
@@ -193,8 +181,7 @@ class GUI:
         
         self.time = int(((finish_time - start_time) / (1_000_000_000))*100)/100
         self.tree_file = tree_generation.generating_tree(state)
-        # self.__set_play(self.__get_cell_id((play_col, 1)))   # for testing only
-        self.__set_play(self.__get_cell_id((play_col, 1)), "Computer")    # in implementation
+        self.__set_play(self.__get_cell_id((play_col, 1)), "Computer")  
 
     
 
@@ -218,14 +205,14 @@ class GUI:
     
     def __get_cell_id(self, cell_coor):
         """Retruns the cell id given its coordinates"""
-        id = (cell_coor[0]+1) + 7*cell_coor[1]
-        if (cell_coor[1] == 0): id += 5*7
-        elif (cell_coor[1] == 1): id += 3*7
-        elif (cell_coor[1] == 2): id += 1*7
-        elif (cell_coor[1] == 3): id -= 1*7
-        elif (cell_coor[1] == 4): id -= 3*7
-        elif (cell_coor[1] == 5): id -= 5*7
-        return id
+        cell_id = (cell_coor[0]+1) + 7*cell_coor[1]
+        if (cell_coor[1] == 0): cell_id += 5*7
+        elif (cell_coor[1] == 1): cell_id += 3*7
+        elif (cell_coor[1] == 2): cell_id += 1*7
+        elif (cell_coor[1] == 3): cell_id -= 1*7
+        elif (cell_coor[1] == 4): cell_id -= 3*7
+        elif (cell_coor[1] == 5): cell_id -= 5*7
+        return cell_id
 
     def __refresh_info(self):
         for widget in self.info_frame.winfo_children():
@@ -276,8 +263,7 @@ class GUI:
         req_cell = self.__get_cell_coordinates(cell_id)
 
         # check if the play is not in a full column
-        # if (self.grid_array[req_cell[0]] < 6 and self.game_status=="on"):              # for testing only
-        if (turn == self.player and self.grid_array[req_cell[0]] < 6 and self.game_status=="on"):     # in implementation
+        if (turn == self.player and self.grid_array[req_cell[0]] < 6 and self.game_status=="on"): 
             # identifies the peice color and the player
             current_color = self.player_color
 
@@ -285,20 +271,20 @@ class GUI:
             correct_cell_coor = self.__get_correct_cell_coor(req_cell)
 
             if (self.player == "Computer"):
-                self.board.play_at(color_dic[self.computer_color], correct_cell_coor[0])
+                self.board.play_at('x', correct_cell_coor[0])
                 self.player_color = self.user_color
                 self.player = "User"
                 self.grid_frame.winfo_children()[0].itemconfig(self.__get_cell_id(correct_cell_coor), fill=current_color)
                 self.__refresh_info()
                 self.__refresh_options()
             elif (self.player == "User"):
-                self.board.play_at(color_dic[self.user_color], correct_cell_coor[0])
+                self.board.play_at('o', correct_cell_coor[0])
                 self.player_color = self.computer_color
                 self.player = "Computer"
                 self.grid_frame.winfo_children()[0].itemconfig(self.__get_cell_id(correct_cell_coor), fill=current_color)
-                if not self.board_is_full(): self.computer_play()
                 self.__refresh_options()
                 self.__refresh_info()
+                if not self.board_is_full(): self.computer_play()
             
             self.set_score()
             self.is_the_game_over()
@@ -326,7 +312,6 @@ class GUI:
                 x = col * (2 * cell_radius + cell_spacing) + cell_radius + cell_spacing
                 y = row * (2 * cell_radius + cell_spacing) + cell_radius + cell_spacing
                 cell = self.__create_cell(grid, x, y, cell_radius, tag=f'({row},{col})', color="antiquewhite")
-                # grid.tag_bind(cell, "<Button-1>", lambda event, cell_id=cell: self.__set_play(cell_id))  # for testing only
                 grid.tag_bind(cell, "<Button-1>", lambda event, cell_id=cell: self.__set_play(cell_id, "User"))    # in implementation
 
     def __create_info_bar(self):
