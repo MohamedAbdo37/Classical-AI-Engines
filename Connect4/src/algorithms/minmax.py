@@ -7,92 +7,109 @@ from src.envi.tree_generation import tree_generation
 
 class minmax:
 
-    def maximize(self, state , k , turn):
+    expanded_nodes = 0
 
+    # maximize function
+    def maximize(self, state , k , turn):
+        
+        # increase expanded nodes
+        self.expanded_nodes = self.expanded_nodes +1
+
+        # board is full
         if state.is_terminal():
             if(turn==1):
-                state.utility = state.red_score
+                state.utility = state.red_score() - state.blue_score()
                 return state.utility , None
             else :
-                state.utility = state.blue_score
+                state.utility = state.blue_score() - state.red_score()
                 return state.utility , None
 
+        # cut depth
         if state.depth == k :
-            # print(state.depth)
-            if(turn==1):
-                state.utility = state.heuristic(1)
-                return state.utility , None
-            else :
-                state.utility = state.heuristic(2)
-                return state.utility , None     
+            state.utility = state.heuristic(turn)
+            return state.utility , None
 
+        #initialize utility and child
         maximum_utility = float('-inf')
         maximum_child = None
 
+        # generate node childs
         tree_generation.node_children(state)
+
+        '''
         # if __name__ == "__main__":
         #     with ProcessPoolExecutor() as executor:
         #         futures = [executor.submit(self.minimize, child, k, turn) for child in state.children]
         #         results = [future.result() for future in futures]  # Collect results
 
         # for index, result in enumerate(results) :
+        '''
+
         for child in state.children :
             utility , _ = self.minimize(child , k , turn) # type: ignore
 
+            '''
             # if result[0] > maximum_utility :
             # maximum_utility = result[0]
             #     maximum_child = state.children[index].copy()
+            '''
+
+            # check utility
             if utility > maximum_utility :
                 maximum_utility = utility
                 maximum_child = child.copy()
 
-
+        # updating utility
         state.utility = maximum_utility
         return maximum_utility , maximum_child
 
+# ---------------------------------------------------------------------------------------------------
 
-
-
+    # minimize function
     def minimize(self, state , k , turn):
 
+        # increase expanded nodes 
+        self.expanded_nodes = self.expanded_nodes +1
+
+        # board is full
         if state.is_terminal():
             if(turn==1):
-                state.utility = state.red_score()
+                state.utility = state.red_score() - state.blue_score()
                 return state.utility , None
             else :
-                state.utility = state.blue_score()
+                state.utility = state.blue_score() - state.red_score()
                 return state.utility , None
 
-                
+        # cut depth
         if state.depth == k :
-            # print(state.depth) 
-            if(turn==1):
-                state.utility = state.heuristic(1)
-                return state.utility , None
-            else :
-                state.utility = state.heuristic(2)
-                return state.utility , None
+            state.utility = state.heuristic(turn)
+            return state.utility , None
 
 
+        # initialze utility and child
         minimum_utility = float('inf')
         minimum_child = None
         
+        # generating childs
         tree_generation.node_children(state)
         for child in state.children :
             utility , _ = self.maximize(child , k , turn)
 
+            # check utility
             if utility < minimum_utility :
-                minimum_utility = utility
+                minimum_utility = child.utility
                 minimum_child = child.copy()
 
-
+        # updating utility
         state.utility = minimum_utility
         return minimum_utility , minimum_child
 
+# -------------------------------------------------------------------------------------------------------------
 
+    # starting function
     def minmax(self, initial_state, k):
-        print(initial_state, k, initial_state.turn)
         _ , child = self.maximize(initial_state , k , initial_state.turn)
+
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
                 return col, initial_state
@@ -110,4 +127,4 @@ class minmax:
 #     end_time = time_ns()
 #     print(f"play={play}, k={i}: ",(end_time - start_time) / (1_000_000_000*60), "min", f"\nTree Path: {tree_path}")
 
-#py -m src.algorithms.alpha_beta_pruning
+#py -m src.algorithms.minmax

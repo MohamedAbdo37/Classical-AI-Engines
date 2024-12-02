@@ -4,7 +4,6 @@ count = 1
 
 class tree_generation :
 
-
     # generating children of a node
     def node_children(state) :
         for col in range(7):
@@ -26,7 +25,8 @@ class tree_generation :
                     child.turn = 1
                 state.children.append(child)
 
-    
+# --------------------------------------------------------------------------------
+   
     # formating for printing node in tree
     def tree_node(state):
         X=''
@@ -42,7 +42,8 @@ class tree_generation :
         X = X +  '\nValue = ' + str(state.utility)
         return X 
 
-    
+# ----------------------------------------------------------------------------------
+ 
     # generating search tree in valid format for printing
     def generating_tree (initial_state):
         dot = graphviz.Digraph()
@@ -64,10 +65,11 @@ class tree_generation :
                 dot.edge(state.node_name ,state.children[i].node_name)
                 num = num+1
                 queue.append(state.children[i])
+        
+        
         global count
-        # print(count)
         # opening file
         dot.render('D://search tree' + str(count), format='svg')    
-        
         count = count +1   
+
         return 'D://search tree' + str(count-1) + '.svg'
