@@ -16,15 +16,15 @@ class alpha_beta_pruning:
         # board is full
         if state.is_terminal():
             if(turn==1):
-                state.utility = state.red_score() - state.blue_score()
+                state.utility = state.ai_score() - state.human_score()
                 return state.utility , None
             else :
-                state.utility = state.blue_score() - state.red_score()
+                state.utility = state.human_score() - state.ai_score()
                 return state.utility , None
 
         # cut depth 
         if state.depth == k :
-            state.utility = state.heuristic(turn)
+            state.utility = state.heuristic()
             return state.utility , None
 
 
@@ -65,15 +65,15 @@ class alpha_beta_pruning:
         # board is full
         if state.is_terminal():
             if(turn==1):
-                state.utility = state.red_score() - state.blue_score()
+                state.utility = state.ai_score() - state.human_score()
                 return state.utility , None
             else :
-                state.utility = state.blue_score() - state.red_score()
+                state.utility = state.human_score() - state.ai_score()
                 return state.utility , None
 
         # cut depth
         if state.depth == k :
-            state.utility = state.heuristic(turn)
+            state.utility = state.heuristic()
             return state.utility , None
 
 
