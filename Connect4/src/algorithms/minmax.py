@@ -26,12 +26,8 @@ class minmax:
 
         # cut depth
         if state.depth == k :
-            if(turn==1):
-                state.utility = state.heuristic(1)
-                return state.utility , None
-            else :
-                state.utility = state.heuristic(2)
-                return state.utility , None  
+            state.utility = state.heuristic(turn)
+            return state.utility , None
 
         #initialize utility and child
         maximum_utility = float('-inf')
@@ -86,12 +82,8 @@ class minmax:
 
         # cut depth
         if state.depth == k :
-            if(turn==1):
-                state.utility = state.heuristic(1)
-                return state.utility , None
-            else :
-                state.utility = state.heuristic(2)
-                return state.utility , None
+            state.utility = state.heuristic(turn)
+            return state.utility , None
 
 
         # initialze utility and child
