@@ -3,19 +3,30 @@ import numpy as np
 
 
 class EnviState:
-    def __init__(self):
+    def __init__(self, s=None):
         """Initialize the EnviState with default values."""
-        # Initialize the board with an empty state
-        self.board = '\0\0\0\0\0\0\0\0\0\0\0\0'.encode("ASCII")
-        # Initialize the list of red player moves
-        self.red = 0
-        # Initialize the list of blue player moves
-        self.blue = 0
-        # Initialize the columns with default values
-        self.cols = '0000000'
-        self.blocked_seqs = 0
-        self.red_last = -1
-        self.blue_last = -1
+        if s is None:
+            # Initialize the board with an empty state
+            self.board = b'\0\0\0\0\0\0\0\0\0\0\0\0'
+            # Initialize the list of red player moves
+            self.red = 0
+            # Initialize the list of blue player moves
+            self.blue = 0
+            # Initialize the columns with default values
+            self.cols = '0000000'
+            self.blocked_seqs = 0
+            self.red_last = -1
+            self.blue_last = -1
+        else:
+            self.board = s.board
+            self.red = s.red
+            self.blue = s.blue  
+            self.cols = s.cols
+            self.blocked_seqs = s.blocked_seqs
+            self.red_last = s.red_last
+            self.blue_last = s.blue_last
+            
+        self.grid = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
     
     def get_board_2d(self):
         """
@@ -94,15 +105,7 @@ class EnviState:
         EnviState
             A copy of the current EnviState.
         """
-        s = EnviState()
-        s.board = self.board  # Use the copy method to create a new copy of the board
-        s.red = self.red  # Use the copy method to create a new copy of the red list
-        s.blue = self.blue  # Use the copy method to create a new copy of the blue list
-        s.cols = self.cols  # Use the copy method to create a new copy of the columns
-        s.blocked_seqs = self.blocked_seqs  # Use the copy method to create a new copy of the blocked_seqs
-        s.red_last = self.red_last  # Use the copy method to create a new copy of the red_last
-        s.blue_last = self.blue_last  # Use the copy method to create a new copy of the blue_last
-        
+        s = EnviState(self)
         return s
 
     
@@ -279,11 +282,11 @@ class EnviState:
         one_step = 100 * self.one_step_chance('x')
         # Calculate the two-step chances to win
         two_step = 50 * self.two_step_chance('x', col)
-        # Calculate the three-step chances to win
-        three_step = 25 * self.three_step_chance('x', col)
+        # # Calculate the three-step chances to win
+        # three_step = 25 * self.three_step_chance('x', col)
         
         # Calculate the weight based on the score and the number of chances to win
-        weight = score + one_step + two_step + three_step + blocking
+        weight = score + one_step + two_step + blocking
         
         # Delete the set of chances to gain at least one point
         del self.chance_set
@@ -310,10 +313,10 @@ class EnviState:
         # Calculate the one-step, two-step, three-step, and four-step chances
         one_step = 100 * self.one_step_chance('o')
         two_step = 50 * self.two_step_chance('o', col)
-        three_step = 25 * self.three_step_chance('o', col)
+        # three_step = 25 * self.three_step_chance('o', col)
         
         # Calculate the weight
-        weight = score + one_step + two_step + three_step + blocking
+        weight = score + one_step + two_step + blocking
         
         # Remove the set of chances
         del self.chance_set
@@ -340,9 +343,9 @@ class EnviState:
             The number of new points for the given player.
         """
         points = 0
-        grid = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
         
-        for move in grid:
+        
+        for move in self.grid:
                 # Check if the move is out of bounds
                 if row + move[0] < 0 or row + move[0] > 5 or col + move[1] < 0 or col + move[1] > 6:
                     continue
@@ -401,8 +404,7 @@ class EnviState:
             The total number of one-step chances available to the player.
         """
         chances = 0
-        # The grid represents the possible moves in a Connect Four game
-        grid = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
+    
         
         if c == -1:
             # Iterate over each column in the board
@@ -414,7 +416,7 @@ class EnviState:
                     continue
                 
                 # Check if the point is occupied by the given player
-                for move in grid:
+                for move in self.grid:
                     if (col + 7 * row) not in self.chance_set and self.chance_point(row, col, move, player):
                         chances += 1
                         self.chance_set.add(col + 7 * row)
@@ -427,7 +429,7 @@ class EnviState:
                 return 0
             
             # Check if the point is occupied by the given player
-            for move in grid:
+            for move in self.grid:
                 if (col + 7 * row) not in self.chance_set and self.chance_point(row, col, move, player):
                     chances += 1
                     self.chance_set.add(col + 7 * row)
@@ -604,7 +606,7 @@ class EnviState:
         return False
 
     
-    def heuristic(self, mode, c= None):
+    def heuristic(self, mode, c=None, col=None):
         """
         Calculate a heuristic value for the current state.
 
@@ -627,12 +629,19 @@ class EnviState:
         """
         if mode == 1:
             # Calculate the heuristic value for the red player
-            c = self.red_weight() - self.blue_weight()
-            return c
+            
+            t = self.red_weight() - self.blue_weight()
+            if c != None and col != None:
+                c[col] = t
+                print(t)
+            return t
         elif mode == 2:
             # Calculate the heuristic value for the blue player.
-            c = self.blue_weight() - self.red_weight()
-            return 
+            t = self.blue_weight() - self.red_weight()
+            if c != None and col != None:
+                c[col] = t
+                print(t)
+            return t
         else:
             raise ValueError("Invalid mode")
 
@@ -661,6 +670,7 @@ class EnviState:
         """
         # Decrease the value of the column at the specified index
         self.cols = self.cols[:col] + str(int(self.cols[col]) - 1) + self.cols[col+1:]
+        
 
   
 
