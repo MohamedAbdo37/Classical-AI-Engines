@@ -255,21 +255,16 @@ class GUI:
         self.grid_array[req_cell[0]] += 1
         return (req_cell[0], new_cell_y)
 
-    # def __set_play(self, cell_id):      # for testing only
-    def __set_play(self, cell_id, turn):        # in implementation
+    def __set_play(self, cell_id, turn):        
         """puts the correct peice in the grid"""
-
         # get the cooredinates of the required cell
         req_cell = self.__get_cell_coordinates(cell_id)
-
         # check if the play is not in a full column
         if (turn == self.player and self.grid_array[req_cell[0]] < 6 and self.game_status=="on"): 
             # identifies the peice color and the player
             current_color = self.player_color
-
             # choose the correct cell to insert the peice
             correct_cell_coor = self.__get_correct_cell_coor(req_cell)
-
             if (self.player == "Computer"):
                 self.board.play_at('x', correct_cell_coor[0])
                 self.player_color = self.user_color
@@ -288,10 +283,6 @@ class GUI:
             
             self.set_score()
             self.is_the_game_over()
-
-
-
-
 
     def __create_cell(self, grid, x, y, r, tag, color):
         """Helper function to draw a circle on the canvas."""
@@ -363,8 +354,8 @@ class GUI:
         user_color_options_list.set("blue")
 
         # Create a Button to get selected value
-        use_button = tk.Button(self.starting_options_frame, text="Start", command= lambda player_list = player_options_list, color_list = user_color_options_list : self.__set_starting_settings(player_list, color_list), width=10, cursor="hand2")
-        use_button.pack(side="top", padx=30)
+        use_button = tk.Button(self.starting_options_frame, height=2, width=10, font=(20), text="Start", command= lambda player_list = player_options_list, color_list = user_color_options_list : self.__set_starting_settings(player_list, color_list), cursor="hand2")
+        use_button.pack(side="top", padx=30, pady=10)
 
     def __reset(self):
         """Resets game"""

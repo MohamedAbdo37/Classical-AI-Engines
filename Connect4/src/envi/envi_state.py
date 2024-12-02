@@ -444,7 +444,6 @@ class EnviState:
         """
         chances = 0
     
-        
         if c == -1:
             # Iterate over each column in the board
             for col in range(7):
