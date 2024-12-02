@@ -390,6 +390,8 @@ class GUI:
             self.player_color = self.computer_color
         self.computer_score = 0
         self.user_score = 0
+        self.tree_file = ''
+        self.time = 0
         self.board = EnviState()
         self.__refresh_info()
         self.grid_array = self.__init_grid_array()

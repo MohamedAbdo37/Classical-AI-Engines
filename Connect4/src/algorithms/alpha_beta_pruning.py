@@ -114,16 +114,16 @@ class alpha_beta_pruning:
             if(child.cols[col] != initial_state.cols[col]) :
                 return col, initial_state
 
-for i in range (1,11) :
+# for i in range (1,11) :
 
-    initial_state = EnviState()
-    s = alpha_beta_pruning()
-    start = time_ns()
-    col = s.minmax_pruning(initial_state , i)
-    end = time_ns()
+#     initial_state = EnviState()
+#     s = alpha_beta_pruning()
+#     start = time_ns()
+#     col = s.minmax_pruning(initial_state , i)
+#     end = time_ns()
 
-    print(f"k={i}: ",(end - start) / (1_000_000_000), "seconds" , ' , expanded nodes = ' , s.expanded_nodes)
+#     print(f"k={i}: ",(end - start) / (1_000_000_000), "seconds" , ' , expanded nodes = ' , s.expanded_nodes)
     
-    #tree_generation.generating_tree(initial_state)
+#     #tree_generation.generating_tree(initial_state)
 
 #py -m src.algorithms.alpha_beta_pruning
