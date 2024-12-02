@@ -7,10 +7,8 @@ import time
 
 from src.envi.envi_state import EnviState
 
-# columns = [0]*7
-# threads = []
 
-def chance_node(self , col, children):
+def chance_node(col, children):
 
         if col == 0:
             if(children[1] == None):
@@ -40,7 +38,6 @@ def maximize(state, k, p=False, i=None):
     maxChild , maxUtility = None, float('-inf')
     
     children = []
-    # threads = []
     
     for col in range(7):
             child = state.copy()
@@ -57,17 +54,10 @@ def maximize(state, k, p=False, i=None):
                 state.chance_nodes[col] = 0
 
                 continue
-            # if k == 0:
-            #     children.append('@')
-            #     threads.append(threading.Thread(target=state.heuristic, args=(mode,children, col)))
-            #     threads[col].start()
-            # else:
+    
             utility = minimize(child, k-2)[1]
             children.append(utility)
-            
 
-    # for thread in threads:
-    #     thread.join()
         
     for col in range(7):
 
@@ -78,9 +68,7 @@ def maximize(state, k, p=False, i=None):
                 if utility > maxUtility:
                     maxChild, maxUtility = col, utility
         
-        # if p == True:
-        #     columns[i]= maxUtility
-
+  
     state.utility = maxUtility    
     return maxChild, maxUtility
 
@@ -93,7 +81,6 @@ def minimize(state, k, p=False, i=None):
     minChild , minUtility = None, float('inf')
     
     children = []
-    # threads = []
     
     for col in range(7):
         child = state.copy()
@@ -108,11 +95,6 @@ def minimize(state, k, p=False, i=None):
             state.chance_nodes[col] = 0
             continue
 
-        # if  k == 0:
-        #     children.append('@')
-        #     threads.append(threading.Thread(target=state.heuristic, args=(mode,children, col)))
-        #     threads[col].start()
-        # else:
         utility = maximize(child, k-2)[1]
         
         children.append(utility)
@@ -140,7 +122,8 @@ def decision(state, k, p=False):
         int: The column of the best move.
         EnviState: The updated state of the environment.
     """
-    
+    if k<2:
+        raise ValueError("K must be more than 1")
     col = maximize(state, k-2)[0]
     return col, state
         

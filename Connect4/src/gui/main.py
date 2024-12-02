@@ -5,16 +5,13 @@ import subprocess
 import math
 from src.envi.tree_generation import tree_generation
 from src.algorithms.minmax import minmax
-
-# from src.algorithms.expected_minmax import expected_minmax
-
+from src.algorithms.expected_minmax import decision
 from src.algorithms.alpha_beta_pruning import alpha_beta_pruning
 from src.envi.envi_state import EnviState
 
 # default user plays first with blue and computer with red peices 
 # default AI algorithm used is MinMax without Pruning with k = 8
 class GUI:
-    
     def __init__(self):
         # Main variables
         self.start_player = "User"
@@ -175,13 +172,18 @@ class GUI:
             play_col, state = minmax().minmax(self.board.copy(), int(self.k))
         elif (self.ai_algorithm == "MinMax with Pruning"):
             play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
-        # else :
-        #     play_col, tree_file = expected_minmax().decision(self.board.copy, self.k, 1)
+        else :
+            play_col, state = decision(self.board.copy(), int(self.k))
+
         finish_time = time_ns()
         
         self.time = int(((finish_time - start_time) / (1_000_000_000))*100)/100
-        self.tree_file = tree_generation.generating_tree(state)
         self.__set_play(self.__get_cell_id((play_col, 1)), "Computer")  
+
+        if (self.ai_algorithm == "Expected MinMax"):
+            self.tree_file = tree_generation.excepted_minmax_tree(state)
+        else:
+            self.tree_file = tree_generation.generating_tree(state)
 
     
 
@@ -229,6 +231,8 @@ class GUI:
     def __set_ai_algorithm(self, list, k):
         self.ai_algorithm  = list.get()
         self.k = k.get()
+        if (self.ai_algorithm == "Expected MinMax" and int(self.k) < 2):
+            self.k = 2
         self.__refresh_options()
     
     def __set_starting_settings(self, player_list, color_list):
