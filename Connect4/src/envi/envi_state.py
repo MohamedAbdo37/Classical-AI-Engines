@@ -316,6 +316,9 @@ class EnviState:
 
         score = 200 * self.ai_score()
         
+        if self.is_terminal():
+            return score + blocking
+        
         # Calculate the one-step chances to win
         one_step = 100 * self.one_step_chance('x')
         # Calculate the two-step chances to win
@@ -347,7 +350,10 @@ class EnviState:
             blocking = 125 * self.blocked_seqs
             
         
-        score = 200 * self.human_score()             
+        score = 200 * self.human_score()   
+        
+        if self.is_terminal():
+            return score + blocking          
         
         # Calculate the one-step, two-step, three-step, and four-step chances
         one_step = 100 * self.one_step_chance('o')
