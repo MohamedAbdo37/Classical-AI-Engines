@@ -96,8 +96,7 @@ class alpha_beta_pruning:
 
         for col in range (7) :
             if(child.cols[col] != initial_state.cols[col]) :
-                return col, tree_generation.generating_tree(initial_state)
-
+                return col, initial_state
 
 # for i in range (4) :
 #     initial_state = EnviState()

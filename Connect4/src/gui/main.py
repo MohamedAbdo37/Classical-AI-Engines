@@ -3,10 +3,10 @@ import tkinter as tk
 from tkinter import ttk
 import subprocess
 import math
+from src.envi.tree_generation import tree_generation
 from src.algorithms.minmax import minmax
 
 # from src.algorithms.expected_minmax import expected_minmax
-# print("lksdjfl")
 
 from src.algorithms.alpha_beta_pruning import alpha_beta_pruning
 from src.envi.envi_state import EnviState
@@ -31,9 +31,8 @@ class GUI:
         self.user_score = 0
         self.computer_score = 0
         self.grid_array = self.__init_grid_array()
-        self.grid_string_array = []
         self.ai_algorithm = "MinMax without Pruning"
-        self.k = 8
+        self.k = 1
         self.time = 0
         self.tree_file = ''
         self.board = EnviState()
@@ -83,16 +82,91 @@ class GUI:
 
         self.root.mainloop()
 
-    def is_computer_turn(self):
-        """Checks whether it's Computer's turn or not"""
-        return self.player == "Computer"
+    def board_is_full(self):
+        for i in self.grid_array:
+            if (i != 6): return False
+        return True
     
-    def set_score(self, player, score):
-        """Sets the scores of players"""
-        if (player == "Computer"):
-            self.computer_score = score
+    def is_the_game_over(self):
+        if not self.board_is_full(): return
+        if (self.computer_score > self.user_score):
+            self.info_frame.winfo_children()[0].configure(text="Computer Wins", fg="green")
+        elif (self.computer_score < self.user_score):
+            self.info_frame.winfo_children()[0].configure(text="User Wins", fg="green")
         else:
-            self.user_score = score
+            self.info_frame.winfo_children()[0].configure(text="Draw", fg="green")
+
+
+    def calculate_scores(self, board):
+        rows = len(board)
+        cols = len(board[0])
+
+        def check_line(line):
+            """Check if there is a Connect 4 in the line, allowing overlapping."""
+            count_x, count_o = 0, 0
+            score_x, score_o = 0, 0
+
+            for slot in line:
+                if slot == 'x':
+                    count_x += 1
+                    count_o = 0
+                elif slot == 'o':
+                    count_o += 1
+                    count_x = 0
+                else:
+                    count_x = 0
+                    count_o = 0
+
+                # Count a Connect 4 and continue counting for overlapping
+                if count_x >= 4:
+                    score_x += 1
+                if count_o >= 4:
+                    score_o += 1
+
+            return score_x, score_o
+
+        total_score_x, total_score_o = 0, 0
+
+        # Check rows
+        for row in board:
+            sx, so = check_line(row)
+            total_score_x += sx
+            total_score_o += so
+
+        # Check columns
+        for col in range(cols):
+            column = [board[row][col] for row in range(rows)]
+            sx, so = check_line(column)
+            total_score_x += sx
+            total_score_o += so
+
+        # Check diagonals (top-left to bottom-right)
+        for r in range(rows - 3):
+            for c in range(cols - 3):
+                diagonal = [board[r + i][c + i] for i in range(4)]
+                sx, so = check_line(diagonal)
+                total_score_x += sx
+                total_score_o += so
+
+        # Check diagonals (bottom-left to top-right)
+        for r in range(3, rows):
+            for c in range(cols - 3):
+                diagonal = [board[r - i][c + i] for i in range(4)]
+                sx, so = check_line(diagonal)
+                total_score_x += sx
+                total_score_o += so
+
+        return total_score_x, total_score_o
+
+    def set_score(self):
+        """Sets the scores of players"""
+        score_x, score_o = self.calculate_scores(self.board.get_board_2d())
+        if (color_dic[self.computer_color] == 'x'):
+            self.computer_score = score_x
+            self.user_score = score_o
+        else:
+            self.computer_score = score_o
+            self.user_score = score_x
     
         self.__refresh_info()
 
@@ -104,27 +178,25 @@ class GUI:
     def computer_play(self):
         """Set computer's play"""
         play_col = ''
-        tree_file = ''
+        state = None
+        start_time = time_ns()
         if (self.ai_algorithm == "MinMax without Pruning"):
             initial_state = EnviState()
             initial_state.play_at('o', 0)
-            play_col, tree_file = minmax().minmax(self.board.copy(), int(self.k))
-            print(tree_file)
+            play_col, state = minmax().minmax(self.board.copy(), int(self.k))
         elif (self.ai_algorithm == "MinMax with Pruning"):
-            play_col, tree_file = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
+            play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
+            play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
         # else :
         #     play_col, tree_file = expected_minmax().decision(self.board.copy, self.k, 1)
-
+        finish_time = time_ns()
+        
+        self.time = int(((finish_time - start_time) / (1_000_000_000))*100)/100
+        self.tree_file = tree_generation.generating_tree(state)
         # self.__set_play(self.__get_cell_id((play_col, 1)))   # for testing only
         self.__set_play(self.__get_cell_id((play_col, 1)), "Computer")    # in implementation
-        self.tree_file = tree_file
-    
-    def user_play(self):
-        """Set the user's play"""
 
-    def get_grid(self):
-        """retuns the grid"""
-        return self.grid_string_array
+    
 
     def get_ai_algorithm(self):
         """returns the used AI algorithm by the computer"""
@@ -188,6 +260,8 @@ class GUI:
         self.starting_options_frame.destroy()
         self.game_status = "on"
         self.__refresh_info()
+        if (self.start_player == "Computer"): 
+            self.computer_play()
 
     def __get_correct_cell_coor(self, req_cell):
         new_cell_y = self.grid_array[req_cell[0]]
@@ -222,12 +296,12 @@ class GUI:
                 self.player_color = self.computer_color
                 self.player = "Computer"
                 self.grid_frame.winfo_children()[0].itemconfig(self.__get_cell_id(correct_cell_coor), fill=current_color)
-                start_time = time_ns()
-                self.computer_play()
-                finish_time = time_ns()
-                self.time = int(((finish_time - start_time) / (1_000_000_000))*100)/100
+                if not self.board_is_full(): self.computer_play()
                 self.__refresh_options()
                 self.__refresh_info()
+            
+            self.set_score()
+            self.is_the_game_over()
 
 
 
