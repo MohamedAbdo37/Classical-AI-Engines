@@ -27,6 +27,8 @@ class EnviState:
             self.node_name = ''
             #initialize the utility with the default value for building tree
             self.utility = None
+            #initialize the chance_nodes with the default value
+            self.chance_nodes = [0,0,0,0,0,0,0]
         else:
             self.board = s.board
             self.ai = s.ai
@@ -45,9 +47,12 @@ class EnviState:
             self.node_name = s.node_name
             #initialize the utility with the default value for building tree
             self.utility = s.utility
+            #initialize the chance_nodes with the default value
+            self.chance_nodes = s.chance_nodes
             
         self.GRID = [(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1),(1,1)]
         self.COLUMNS_WEIGHTS = [6, 12, 25, 25, 25, 12, 6]
+        
     
     def get_board_2d(self):
         """

@@ -23,7 +23,7 @@ def chance_node(self , col, children):
             return children[col-1] * 0.4 + children[col] * 0.6 , 2
 
         elif children[col-1] == None and children[col+1] == None :
-            return children[col] , '1'
+            return children[col] , 1
 
         elif children[col-1] == None:
             return children[col] * 0.6 + children[col+1] * 0.4 , 2
@@ -45,7 +45,6 @@ def maximize(state, k, p=False, i=None):
     for col in range(7):
             child = state.copy()
             child.children.clear()
-
 
             try:
                 child.play_at('x', col)
