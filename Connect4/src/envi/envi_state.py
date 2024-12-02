@@ -14,20 +14,8 @@ class EnviState:
         # Initialize the columns with default values
         self.cols = '0000000'
         self.blocked_seqs = 0
-        self.red_last = 0
-        self.blue_last = 0
-        #initialize the children with the default value
-        self.children = [] 
-        #initialize the depth with the default value
-        self.depth = 0
-        #initialize the turn with the default value
-        self.turn = 1
-        #initialize the node_name with the default value for building tree
-        self.node_name = ''
-        #initialize the utility with the default value for building tree
-        self.utility = None
- 
-
+        self.red_last = -1
+        self.blue_last = -1
     
     def get_board_2d(self):
         """
@@ -294,6 +282,8 @@ class EnviState:
     def red_weight(self):
         
         col = self.red_last
+        if col == -1:
+            return 0
         row = self.find_row(col) - 1
         
         # Initialize the set of chances to gain at least one point         
@@ -326,6 +316,8 @@ class EnviState:
     def blue_weight(self):
         
         col = self.blue_last
+        if col == -1:
+            return 0
         row = self.find_row(col) - 1
         # Initialize the set of chances to gain at least one point         
         self.chance_set = {}
@@ -635,7 +627,7 @@ class EnviState:
         return False
 
     
-    def heuristic(self, mode):
+    def heuristic(self, mode, c= None):
         """
         Calculate a heuristic value for the current state.
 
@@ -658,10 +650,12 @@ class EnviState:
         """
         if mode == 1:
             # Calculate the heuristic value for the red player
-            return self.red_weight() - self.blue_weight()
+            c = self.red_weight() - self.blue_weight()
+            return c
         elif mode == 2:
             # Calculate the heuristic value for the blue player.
-            return self.blue_weight() - self.red_weight()
+            c = self.blue_weight() - self.red_weight()
+            return 
         else:
             raise ValueError("Invalid mode")
 
