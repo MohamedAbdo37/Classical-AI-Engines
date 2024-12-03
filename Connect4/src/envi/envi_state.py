@@ -317,7 +317,7 @@ class EnviState:
         blocking = 0
         # print(row, col)
         if self.slot(row, col) != 'x':
-            blocking = 125 * self.blocked_seqs
+            blocking = 150 * self.blocked_seqs
 
         score = 200 * self.ai_score()
         
@@ -352,7 +352,7 @@ class EnviState:
         # Initialize the score to 0
         blocking = 0
         if self.slot(row, col) != 'o':
-            blocking = 125 * self.blocked_seqs
+            blocking = 150 * self.blocked_seqs
             
         
         score = 200 * self.human_score()   
