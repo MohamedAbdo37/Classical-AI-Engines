@@ -5,7 +5,7 @@ import subprocess
 import math
 from src.envi.tree_generation import tree_generation
 from src.algorithms.minmax import minmax
-from src.algorithms.expected_minmax import decision
+from src.algorithms.expected_minmax import expected_minmax
 from src.algorithms.alpha_beta_pruning import alpha_beta_pruning
 from src.envi.envi_state import EnviState
 
@@ -173,7 +173,7 @@ class GUI:
         elif (self.ai_algorithm == "MinMax with Pruning"):
             play_col, state = alpha_beta_pruning().minmax_pruning(self.board.copy(), int(self.k))
         else :
-            play_col, state = decision(self.board.copy(), int(self.k))
+            play_col, state = expected_minmax().decision(self.board.copy(), int(self.k))
 
         finish_time = time_ns()
         

@@ -181,7 +181,6 @@ class tree_generation :
 
                         else :
                             if state.children[col-1] == None :
-
                                 chance_value = .6*state.children[col].utility + .4*state.children[col+1].utility
                                 chance_value = round (chance_value , 3)
                                 dot.node('chance' + str(chance_num), str(chance_value) , shape = 'circle' , color = 'yellow' , style = 'filled')
