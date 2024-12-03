@@ -1,6 +1,8 @@
-import sys
-import numpy as np
 
+w_1 = 200
+w_2 = 100
+w_3 = 50
+w_4 = 150
 
 class EnviState:
     def __init__(self, s=None):
@@ -317,17 +319,17 @@ class EnviState:
         blocking = 0
         # print(row, col)
         if self.slot(row, col) != 'x':
-            blocking = 150 * self.blocked_seqs
+            blocking = w_4 * self.blocked_seqs
 
-        score = 200 * self.ai_score()
+        score = w_1 * self.ai_score()
         
         if self.is_terminal():
             return score + blocking
         
         # Calculate the one-step chances to win
-        one_step = 100 * self.one_step_chance('x')
+        one_step = w_2 * self.one_step_chance('x')
         # Calculate the two-step chances to win
-        two_step = 50 * self.two_step_chance('x', col)
+        two_step = w_3 * self.two_step_chance('x', col)
         # # Calculate the three-step chances to win
         # three_step = 25 * self.three_step_chance('x', col)
         
@@ -352,17 +354,17 @@ class EnviState:
         # Initialize the score to 0
         blocking = 0
         if self.slot(row, col) != 'o':
-            blocking = 150 * self.blocked_seqs
+            blocking = w_4 * self.blocked_seqs
             
         
-        score = 200 * self.human_score()   
+        score = w_1 * self.human_score()   
         
         if self.is_terminal():
             return score + blocking          
         
         # Calculate the one-step, two-step, three-step, and four-step chances
-        one_step = 100 * self.one_step_chance('o')
-        two_step = 50 * self.two_step_chance('o', col)
+        one_step = w_2 * self.one_step_chance('o')
+        two_step = w_3 * self.two_step_chance('o', col)
         
         # Calculate the weight
         weight = score + one_step + two_step + blocking + self.COLUMNS_WEIGHTS[col]
@@ -712,3 +714,17 @@ class EnviState:
         # Decrease the value of the column at the specified index
         self.cols = self.cols[:col] + str(int(self.cols[col]) - 1) + self.cols[col+1:]
         
+    def set_board(self, board, turn):
+        for col in range(7):
+            for row in range(6):
+                if board[row][col] == turn:
+                    self.set_slot(row, col, 'x')
+                    self.increase_col(col)
+                    self.ai += self.new_points(row, col,'x')
+                elif board[row][col] == 0:
+                    self.set_slot(row, col, 'e')
+                    break
+                else:
+                    self.set_slot(row, col, 'o')
+                    self.increase_col(col)
+                    self.human += self.new_points(row, col,'o')
