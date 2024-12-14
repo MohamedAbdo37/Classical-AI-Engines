@@ -162,3 +162,24 @@ s = expected_minmax ()
 _ , initial = s.decision(initial , 2)
 tree_generation.excepted_minmax_tree(initial)          
 '''
+
+state = EnviState()
+import random
+t = 1
+co = [0,1,2,3,4,5,6]
+for i in range(16):
+    if t == 1:
+        state.play_at('x', random.choice(co))
+        t = 2
+    else:
+        state.play_at('o', random.choice(co))
+        t = 1
+
+print('expected_minmax')
+print('k\ttime\tcol')
+for i in range(2,17):
+    s = time_ns()
+    col , _ = expected_minmax().decision(state.copy(),i)
+    e = time_ns()
+    print(i ,'\t',((e-s)/1000_000_000.0),'\t',col)
+

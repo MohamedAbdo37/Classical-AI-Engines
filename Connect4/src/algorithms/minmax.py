@@ -78,8 +78,31 @@ class minmax:
             if(child.cols[col] != initial_state.cols[col]) :
                 return col, initial_state
 
-
+'''
 initial = EnviState()
 s = minmax ()
 _ , initial = s.minmax(initial , 2)
 tree_generation.generating_tree(initial)
+'''
+
+state = EnviState()
+import random
+from time import time_ns
+
+t = 1
+co = [0,1,2,3,4,5,6]
+for i in range(16):
+    if t == 1:
+        state.play_at('x', random.choice(co))
+        t = 2
+    else:
+        state.play_at('o', random.choice(co))
+        t = 1
+
+print('expected_minmax')
+print('k\ttime\tcol')
+for i in range(8):
+    s = time_ns()
+    col , _ = minmax().minmax(state.copy(),i)
+    e = time_ns()
+    print(i ,'\t',((e-s)/1000_000_000.0),'\t',col)
