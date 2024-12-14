@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "connect4"
+version = "0.1.0"
+description = "A Python implementation of a modified Connect 4 game with GUI and AI algorithms"
+authors = ["Mohamed Abdel-Moneim <mabdelmoneim737@gmail.com>", 
+            "Ibrahim Mohamed <ibrahimmohamed3054@gmail.com>", 
+            "Nayra Ibrahim <ni254828@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.1.3"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
