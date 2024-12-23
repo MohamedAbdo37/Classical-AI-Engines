@@ -55,6 +55,10 @@ public class Solver {
         }
     }
 
+    public int[][] getBoard() {
+        return this.sudokuBoard.getBoard();
+    }
+
     public static void main(String[] args) {
 
         // lab game
@@ -111,11 +115,11 @@ public class Solver {
                 { 3, 0, 0, 0, 6, 0, 0, 0, 8 }, { 1, 0, 0, 3, 0, 8, 0, 0, 4 }, { 6, 0, 0, 0, 2, 0, 0, 0, 7 },
                 { 0, 8, 2, 0, 0, 0, 0, 6, 0 }, { 5, 0, 0, 9, 1, 4, 0, 0, 0 }, { 9, 7, 0, 0, 8, 0, 0, 0, 0 } };
 
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 9; i++) {
-            System.out.println(Arrays.toString(initialState[i]));
-        }
         new Solver(initialState).solve();
+        long start = System.currentTimeMillis();
+        // for (int i = 0; i < 9; i++) {
+        // System.out.println(Arrays.toString(sudokuBoard.getBoard()[i]));
+        // }
 
         long elapsed = System.currentTimeMillis() - start;
         System.out.println("elapsed time : " + elapsed + " ms");

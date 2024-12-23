@@ -1,19 +1,18 @@
 package com.algorithms.sudoko;
 
+import com.algorithms.sudoko.models.Solver;
 import javafx.application.Application;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import jdk.incubator.vector.VectorOperators;
 
 import java.io.IOException;
 
@@ -24,22 +23,37 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         // Create the Sudoku grid
         GridPane sudokuGrid = createSudokuGrid();
-
-        // Create a ComboBox (drop-down list)
+        BorderPane root = new BorderPane();
         ComboBox<String> dropDownDefficuly = new ComboBox<>();
+        ComboBox<String> dropDownMode = new ComboBox<>();
+        Button actionButton = new Button("Start Game");
+        Button clearButton = new Button("Clear");
+        Text faildText = new Text();
+        faildText.setText("Entered board has no solution");
+        faildText.setFill(Color.RED);
+        faildText.setFont(Font.font("Time New Romans", 16));
+        Text succeededText = new Text();
+        succeededText.setText("Board solved successfully");
+        succeededText.setFill(Color.GREEN);
+        succeededText.setFont(Font.font("Time New Romans", 16));
+        HBox bottomBox = new HBox(40, dropDownDefficuly, dropDownMode, actionButton, clearButton);
+
+        root.setCenter(sudokuGrid);
+        root.setBottom(bottomBox);
+
+        // Create and set the scene
+        Scene scene = new Scene(root, 400, 500);
+        // Create a ComboBox (drop-down list)
         dropDownDefficuly.getItems().addAll("Easy", "Medium", "Hard");
-        dropDownDefficuly.setValue("Easy"); // Set default value
+        dropDownDefficuly.setValue("Choose Defficulty"); // Set default value
 
         // Create a ComboBox (drop-down list)
-        ComboBox<String> dropDownMode = new ComboBox<>();
         dropDownMode.getItems().addAll("Random", "Customized");
-        dropDownMode.setValue("Random"); // Set default value
-
+        dropDownMode.setValue("Choose Mode"); // Set default value
+        disableCells(scene);
         // Create a Button
-        Button actionButton = new Button("Start Game");
 
         // Create a VBox for dropdown and button
-        HBox bottomBox = new HBox(40, dropDownDefficuly, dropDownMode, actionButton);
         dropDownMode.setOnAction(event->{
             String selectedValue = dropDownMode.getSelectionModel().getSelectedItem();
             if (selectedValue == "Customized" &&  bottomBox.getChildren().getFirst() == dropDownDefficuly){
@@ -48,29 +62,47 @@ public class Main extends Application {
             else if (selectedValue == "Random" &&  bottomBox.getChildren().getFirst() != dropDownDefficuly){
                 bottomBox.getChildren().addFirst(dropDownDefficuly);
             }
+            if (selectedValue == "Customized"){
+                enableCells(scene);
+            }
+            else if (selectedValue == "Random"){
+                disableCells(scene);
+            }
         });
         bottomBox.setPadding(new Insets(10));
         // Combine everything in a BorderPane
-        BorderPane root = new BorderPane();
-        root.setCenter(sudokuGrid);
-        root.setBottom(bottomBox);
 
-        // Create and set the scene
-        Scene scene = new Scene(root, 400, 500);
         actionButton.setOnAction(event -> {
+            disableCells(scene);
             String selectedDifficulty = dropDownDefficuly.getValue();
             System.out.println("Selected Difficulty: " + selectedDifficulty);
             String selectedMode = dropDownMode.getValue();
             System.out.println("Selected Mode: " + selectedMode);
 
             if (selectedMode == "Customized"){
-//                solve(board);
+                Solver solver = new Solver(board);
+                solver.solve();
+                board = solver.getBoard();
+                if (!checkForSolution()) bottomBox.getChildren().add(faildText);
+                else {
+                    bottomBox.getChildren().add(succeededText);
+                    applyBoard(scene);
+                }
             }
             else{
 //                board = generateBoard(selectedDifficulty);
 //                applyBoard(scene);
 //                solve();
             }
+        });
+
+        clearButton.setOnAction(event->{
+            if (bottomBox.getChildren().getLast() == faildText)
+                bottomBox.getChildren().removeLast();
+            if (bottomBox.getChildren().getLast() == succeededText)
+                bottomBox.getChildren().removeLast();
+            clearBoard(scene);
+            enableCells(scene);
         });
         primaryStage.setScene(scene);
         primaryStage.setWidth(800);
@@ -107,23 +139,39 @@ public class Main extends Application {
                 TextField cell = new TextField();
                 cell.setId(setCellID(boxRow, boxCol, row, col));
                 cell.textProperty().addListener((event)->{
-                    this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))]
+                    if (cell.getCharacters().toString() == "")
+                        this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))] = 0;
+                    else
+                        this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))]
                             = Integer.parseInt(cell.getCharacters().toString());
                     printBoard();
                 });
                 cell.setPrefSize(80, 80); // Set size for the text field
                 cell.setStyle("-fx-alignment: center;"); // Center the text
-                boolean isEditable = Math.random() > 0.5; // Example logic for enabling/disabling cells
-                cell.setEditable(isEditable);
-                cell.setDisable(!isEditable);
-                if (!isEditable) {
-                    cell.setText(String.valueOf((int) (Math.random() * 9) + 1)); // Example fixed number
-                }
+//                boolean isEditable = Math.random() > 0.5; // Example logic for enabling/disabling cells
+//                cell.setEditable(isEditable);
+//                cell.setDisable(!isEditable);
+//                if (!isEditable) {
+//                    cell.setText(String.valueOf((int) (Math.random() * 9) + 1)); // Example fixed number
+//                }
                 cell.setFont(Font.font(20));
                 gridPane.add(cell, col, row);
             }
         }
         return gridPane;
+    }
+
+    private void enableCells(Scene scene){
+        for (int i=0; i<GRID_SIZE*GRID_SIZE; i++){
+            ((TextField)scene.lookup("#" + String.valueOf(i))).setEditable(true);
+            ((TextField)scene.lookup("#" + String.valueOf(i))).setDisable(false);
+        }
+    }
+
+    private void disableCells(Scene scene){
+        for (int i=0; i<GRID_SIZE*GRID_SIZE; i++){
+            ((TextField)scene.lookup("#" + String.valueOf(i))).setDisable(true);
+        }
     }
 
     private String setCellID(int boxRow, int boxCol, int cellRow, int cellCol){
@@ -142,10 +190,27 @@ public class Main extends Application {
         return String.valueOf(x*GRID_SIZE + y);
     }
 
+    private boolean checkForSolution(){
+        for (int i=0; i<GRID_SIZE; i++){
+            for (int j=0; j<GRID_SIZE; j++){
+                if (this.board[i][j] == 0 || this.board[i][j] < 0 || this.board[i][j] > 9) return false;
+            }
+        }
+        return true;
+    }
+
     private void applyBoard(Scene scene){
         for (int i=0; i<GRID_SIZE; i++){
             for (int j=0; j<GRID_SIZE; j++){
-                ((TextField) scene.lookup(mapCoorToID(i, j))).setText("#" + String.valueOf(this.board[i][j]));
+                ((TextField) scene.lookup("#" + mapCoorToID(i, j))).setText( String.valueOf(this.board[i][j]));
+            }
+        }
+    }
+
+    private void clearBoard (Scene scene){
+        for (int i=0; i<GRID_SIZE; i++){
+            for (int j=0; j<GRID_SIZE; j++){
+                ((TextField) scene.lookup("#" + mapCoorToID(i, j))).clear();
             }
         }
     }
