@@ -4,8 +4,10 @@ public class Arc {
 
     // Arcs: An arc in Sudoku represents a binary constraint between two variables
     // (cells).
-    private int sourceRow ;
 
+    // row , col of cell that has the arc out
+    // row , col of cell that has the arc in
+    private int sourceRow ;
     private int sourceCol ;
     private int destinationRow ;
     private int destinationCol ;

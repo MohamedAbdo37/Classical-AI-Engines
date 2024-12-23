@@ -1,12 +1,8 @@
 package com.algorithms.sudoko.models;
-
 import java.util.*;
 
 
-/*
-sudoku domain is defined as 2d array , 9x9 array
-each cell is defined as arraylist contains the domain of this cell
-*/
+
 
 public class ArcConsistency {
 
@@ -16,7 +12,7 @@ public class ArcConsistency {
 
 
     // return false if in consistency is found , true otherwise
-    public boolean arcConsistency(ArrayList<Integer> [][] domains){
+    public boolean arcConsistency(SudokuBoard sudokuBoard){
 
         // queue of all arcs , each cell has arc with all cells in same row , column , 3x3 sub grid
         // total 20 arc for each cell with total 20*81 = 1620 arc
@@ -31,16 +27,10 @@ public class ArcConsistency {
 
             // (Xi , Xj) = remove queue
             Arc arc = arcs.remove() ;
-            if (Revise(arc , domains)){
+            if (Revise(arc , sudokuBoard.getDomains())){
 
-                if(domains[arc.getSourceRow()][arc.getSourceCol()].isEmpty()) { // inconsistent -> return false
+                if(sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].isEmpty()) { // inconsistent -> return false
                     System.out.println(arc);
-                    for (int i=0 ; i<9 ; i++){
-                        for (int j=0 ; j<9 ; j++){
-                            System.out.print(domains[i][j] + " ");
-                        }
-                        System.out.println();
-                    }
                     return false;
                 }
 
@@ -55,11 +45,12 @@ public class ArcConsistency {
             }
 
         }
+        updateSudokuGrid(sudokuBoard);
         return true ;
     }
 
     // return true if we revised the domain of Xi (domain is reduced)
-    public boolean Revise(Arc arc , ArrayList<Integer> [][] domains){
+    private boolean Revise(Arc arc , ArrayList<Integer> [][] domains){
         boolean revised = false ;
 
         for (int i=0 ; i<domains[arc.getSourceRow()][arc.getSourceCol()].size() ; i++){
@@ -84,7 +75,7 @@ public class ArcConsistency {
     }
 
     // add all arcs that point to specific cell to arcs queue
-    public void addArcsToQueue(int row , int col , Queue<Arc> arcs){
+    private void addArcsToQueue(int row , int col , Queue<Arc> arcs){
 
         int adjacentRow1 ;
         int adjacentRow2 ;
@@ -156,26 +147,6 @@ public class ArcConsistency {
         }
     }
 
-    /*
-    Initial Domain Reduction: Before applying arc consistency, initialize the domains of each
-     variable based on the initial puzzle.
-     For each pre-filled cell, remove all other values from its domain. For each empty cell,
-     initialize its domain to [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    */
-    public ArrayList<Integer>[][] initialDomainReduction(int[][] initialStata){
-        ArrayList<Integer>[][] domains = new ArrayList[9][9] ;
-        for(int i=0; i<9 ; i++){
-            for (int j=0 ; j<9 ; j++){
-                domains[i][j] = new ArrayList<>() ;
-                if(initialStata[i][j] == 0)
-                    Collections.addAll(domains[i][j] , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9) ;
-                else
-                    domains[i][j].add(initialStata[i][j]) ;
-            }
-        }
-        return domains ;
-    }
-
 
     /*
     Update Sudoku Grid: After applying arc consistency, update the Sudoku grid based on
@@ -183,40 +154,19 @@ public class ArcConsistency {
     For each cell with a singleton domain (a domain with only one value), assign that value
     to the cell.
     */
-    public void updateSudokuGrid(int [][] board , ArrayList<Integer>[][] domains){
+    private void updateSudokuGrid(SudokuBoard sudokuBoard){
         for(int i=0 ; i<9 ; i++){
             for(int j=0 ; j<9 ; j++){
-                if(board[i][j] == 0){ // cell isn't filled
-                    if(domains[i][j].size() == 1){ // singleton domain
-                        board[i][j] = domains[i][j].get(0) ;  // update cell
-                    }
+                if(sudokuBoard.getBoard()[i][j] == 0 && sudokuBoard.getDomains()[i][j].size() == 1){ // cell isn't filled
+                    sudokuBoard.getBoard()[i][j] = sudokuBoard.getDomains()[i][j].get(0) ;  // update cell
+                    sudokuBoard.increaseCountOfCompletedAssignments();
                 }
             }
         }
 
         for (int i=0 ; i<9 ; i++){
-            System.out.println(Arrays.toString(board[i]));
+            System.out.println(Arrays.toString(sudokuBoard.getBoard()[i]));
         }
-    }
-
-
-
-    public static void main(String[] args) {
-
-//            int[][] initialState = new int[][] {{7,9,0,0,1,3,6,0,0},{4,0,0,0,7,0,3,0,0},{1,0,0,2,4,0,9,7,5},
-//            {5,0,0,6,0,0,2,0,7},{0,7,0,0,0,1,8,0,0},{8,0,6,9,2,0,5,0,0},
-//            {6,0,1,0,0,2,0,5,3},{3,0,0,0,0,0,4,0,9},{0,2,4,0,3,5,0,0,0}} ;
-
-        int[][] initialState = new int[][] {{8,0,9,2,0,1,0,7,4},{1,2,3,7,5,0,0,6,9},{5,0,4,8,9,6,3,1,0},
-                                            {7,4,0,1,6,9,2,0,8},{0,1,0,0,8,0,7,9,0},{0,0,0,0,0,7,0,0,1},
-                                            {0,0,0,6,7,8,9,0,3},{9,0,7,3,4,2,0,5,6},{2,3,0,0,0,0,4,8,7}} ;
-
-        ArcConsistency arcConsistency = new ArcConsistency() ;
-        ArrayList <Integer>[][] domains ;
-        domains = arcConsistency.initialDomainReduction(initialState) ;
-        arcConsistency.arcConsistency(domains) ;
-        arcConsistency.updateSudokuGrid(initialState , domains);
-
     }
 }
 
