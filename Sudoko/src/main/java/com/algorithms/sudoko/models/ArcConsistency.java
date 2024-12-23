@@ -1,10 +1,13 @@
 package com.algorithms.sudoko.models;
 import java.util.*;
 
+class ArcConsistency {
 
+    private SudokuBoard sudokuBoard ;
 
-
-public class ArcConsistency {
+    protected ArcConsistency(SudokuBoard sudokuBoard) {
+        this.sudokuBoard = sudokuBoard;
+    }
 
     private boolean addAgain = false;
     private int exceptedRow = -1 ;
@@ -12,7 +15,7 @@ public class ArcConsistency {
 
 
     // return false if in consistency is found , true otherwise
-    public boolean arcConsistency(SudokuBoard sudokuBoard){
+    protected boolean arcConsistency(){
 
         // queue of all arcs , each cell has arc with all cells in same row , column , 3x3 sub grid
         // total 20 arc for each cell with total 20*81 = 1620 arc
@@ -24,13 +27,12 @@ public class ArcConsistency {
         }
 
         while (!arcs.isEmpty()){
-
             // (Xi , Xj) = remove queue
             Arc arc = arcs.remove() ;
-            if (Revise(arc , sudokuBoard.getDomains())){
+            if (this.Revise(arc)){
 
-                if(sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].isEmpty()) { // inconsistent -> return false
-                    System.out.println(arc);
+                if(this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].isEmpty()) { // inconsistent -> return false
+                    //System.out.println(arc);
                     return false;
                 }
 
@@ -45,20 +47,20 @@ public class ArcConsistency {
             }
 
         }
-        updateSudokuGrid(sudokuBoard);
+        this.updateSudokuGrid();
         return true ;
     }
 
     // return true if we revised the domain of Xi (domain is reduced)
-    private boolean Revise(Arc arc , ArrayList<Integer> [][] domains){
+    private boolean Revise(Arc arc){
         boolean revised = false ;
 
-        for (int i=0 ; i<domains[arc.getSourceRow()][arc.getSourceCol()].size() ; i++){
+        for (int i=0 ; i<this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].size() ; i++){
 
             boolean thereIsMatchInY = false ;
 
-            for(int y : domains[arc.getDestinationRow()][arc.getDestinationCol()]){
-                if(domains[arc.getSourceRow()][arc.getSourceCol()].get(i)!=y){
+            for(int y : this.sudokuBoard.getDomains()[arc.getDestinationRow()][arc.getDestinationCol()]){
+                if(this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].get(i)!=y){
                     thereIsMatchInY = true ; // there is match , x in Di is consistent with Dj
                     break ;
                 }
@@ -66,9 +68,9 @@ public class ArcConsistency {
 
             // if no value y in Dj allows (x,y) to satisfy the constraint between Xi and Xj then delete x from Di
             if(!thereIsMatchInY){
-                domains[arc.getSourceRow()][arc.getSourceCol()].remove(i) ;
-                i-- ;
-                revised = true ; // domain has reduced
+                this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].remove(i) ;
+                i-- ; // to reflect removal effect
+                revised = true ; // domain has been reduced
             }
         }
         return revised ;
@@ -77,44 +79,13 @@ public class ArcConsistency {
     // add all arcs that point to specific cell to arcs queue
     private void addArcsToQueue(int row , int col , Queue<Arc> arcs){
 
-        int adjacentRow1 ;
-        int adjacentRow2 ;
-        int adjacentCol1 ;
-        int adjacentCol2 ;
+        // getSubgridNeighbours
+        ArrayList<Integer> subgridIndexes = this.sudokuBoard.getSubgridNeighbours(row , col); ;
+        int adjacentRow1 = subgridIndexes.get(0) ;
+        int adjacentRow2 = subgridIndexes.get(1) ;
+        int adjacentCol1 = subgridIndexes.get(2);
+        int adjacentCol2 = subgridIndexes.get(3);
 
-        if(row %3 == 0){
-            adjacentRow1 = row + 1 ;
-            adjacentRow2 = row + 2 ;
-
-        }
-
-        else if(row %3 == 1){
-            adjacentRow1 = row - 1 ;
-            adjacentRow2 = row + 1 ;
-        }
-
-        else {
-            adjacentRow1 = row - 2 ;
-            adjacentRow2 = row - 1 ;
-        }
-
-
-
-        if(col %3 == 0){
-            adjacentCol1 = col + 1 ;
-            adjacentCol2 = col + 2 ;
-
-        }
-
-        else if(col %3 == 1){
-            adjacentCol1 = col - 1 ;
-            adjacentCol2 = col + 1 ;
-        }
-
-        else {
-            adjacentCol1 = col - 2 ;
-            adjacentCol2 = col - 1 ;
-        }
 
         // get cells that in the 3x3 subgrid and not in the same row nor same column
         if(!(addAgain && this.exceptedRow == adjacentRow1 && this.exceptedCol == adjacentCol1))
@@ -154,18 +125,14 @@ public class ArcConsistency {
     For each cell with a singleton domain (a domain with only one value), assign that value
     to the cell.
     */
-    private void updateSudokuGrid(SudokuBoard sudokuBoard){
+    private void updateSudokuGrid(){
         for(int i=0 ; i<9 ; i++){
             for(int j=0 ; j<9 ; j++){
-                if(sudokuBoard.getBoard()[i][j] == 0 && sudokuBoard.getDomains()[i][j].size() == 1){ // cell isn't filled
-                    sudokuBoard.getBoard()[i][j] = sudokuBoard.getDomains()[i][j].get(0) ;  // update cell
-                    sudokuBoard.increaseCountOfCompletedAssignments();
+                if(this.sudokuBoard.getBoard()[i][j] == 0 && this.sudokuBoard.getDomains()[i][j].size() == 1){ // cell isn't filled
+                    this.sudokuBoard.getBoard()[i][j] = this.sudokuBoard.getDomains()[i][j].get(0) ;  // update cell
+                    this.sudokuBoard.increaseCountOfCompletedAssignments();
                 }
             }
-        }
-
-        for (int i=0 ; i<9 ; i++){
-            System.out.println(Arrays.toString(sudokuBoard.getBoard()[i]));
         }
     }
 }

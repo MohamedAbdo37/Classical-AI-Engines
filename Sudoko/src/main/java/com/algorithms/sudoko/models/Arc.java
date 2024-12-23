@@ -1,6 +1,8 @@
 package com.algorithms.sudoko.models;
 
-public class Arc {
+import java.util.ArrayList;
+
+class Arc {
 
     // Arcs: An arc in Sudoku represents a binary constraint between two variables
     // (cells).
@@ -12,26 +14,26 @@ public class Arc {
     private int destinationRow ;
     private int destinationCol ;
 
-    public Arc(int sourceRow, int sourceCol , int destinationRow, int destinationCol) {
+    protected Arc(int sourceRow, int sourceCol , int destinationRow, int destinationCol) {
         this.sourceRow = sourceRow;
         this.destinationRow = destinationRow;
         this.sourceCol = sourceCol;
         this.destinationCol = destinationCol;
     }
 
-    public int getSourceRow() {
+    protected int getSourceRow() {
         return this.sourceRow;
     }
 
-    public int getDestinationRow() {
+    protected int getDestinationRow() {
         return this.destinationRow;
     }
 
-    public int getSourceCol() {
+    protected int getSourceCol() {
         return this.sourceCol;
     }
 
-    public int getDestinationCol() {
+    protected int getDestinationCol() {
         return this.destinationCol;
     }
 
@@ -44,4 +46,5 @@ public class Arc {
                 ", destinationCol=" + destinationCol +
                 '}';
     }
+
 }
