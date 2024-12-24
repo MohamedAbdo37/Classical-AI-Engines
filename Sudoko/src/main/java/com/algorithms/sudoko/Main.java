@@ -12,7 +12,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import jdk.incubator.vector.VectorOperators;
 
 import java.io.IOException;
 
@@ -75,19 +74,22 @@ public class Main extends Application {
         actionButton.setOnAction(event -> {
             disableCells(scene);
             String selectedDifficulty = dropDownDefficuly.getValue();
-            System.out.println("Selected Difficulty: " + selectedDifficulty);
+//            System.out.println("Selected Difficulty: " + selectedDifficulty);
             String selectedMode = dropDownMode.getValue();
-            System.out.println("Selected Mode: " + selectedMode);
+//            System.out.println("Selected Mode: " + selectedMode);
 
             if (selectedMode == "Customized"){
-                Solver solver = new Solver(board);
-                solver.solve();
-                board = solver.getBoard();
-                if (!checkForSolution()) bottomBox.getChildren().add(faildText);
-                else {
-                    bottomBox.getChildren().add(succeededText);
-                    applyBoard(scene);
+                if (checkForSolution()) {
+                    Solver solver = new Solver(board);
+                    boolean state = solver.solve();
+                    board = solver.getBoard();
+                    if (state) bottomBox.getChildren().add(faildText);
+                    else {
+                        bottomBox.getChildren().add(succeededText);
+                        applyBoard(scene);
+                    }
                 }
+                else bottomBox.getChildren().add(faildText);
             }
             else{
 //                board = generateBoard(selectedDifficulty);
@@ -141,10 +143,16 @@ public class Main extends Application {
                 cell.textProperty().addListener((event)->{
                     if (cell.getCharacters().toString() == "")
                         this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))] = 0;
-                    else
-                        this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))]
-                            = Integer.parseInt(cell.getCharacters().toString());
-                    printBoard();
+                    else {
+                        try {
+                            this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))]
+                                    = Integer.parseInt(cell.getCharacters().toString());
+                        } catch (NumberFormatException e) {
+                            this.board[mapIDToX(Integer.parseInt(cell.getId()))][mapIDToY(Integer.parseInt(cell.getId()))]
+                                    = 10; // dummy variable
+                        }
+                    }
+//                    printBoard();
                 });
                 cell.setPrefSize(80, 80); // Set size for the text field
                 cell.setStyle("-fx-alignment: center;"); // Center the text
@@ -193,7 +201,7 @@ public class Main extends Application {
     private boolean checkForSolution(){
         for (int i=0; i<GRID_SIZE; i++){
             for (int j=0; j<GRID_SIZE; j++){
-                if (this.board[i][j] == 0 || this.board[i][j] < 0 || this.board[i][j] > 9) return false;
+                if (this.board[i][j] <= 0 || this.board[i][j] > 9) return false;
             }
         }
         return true;

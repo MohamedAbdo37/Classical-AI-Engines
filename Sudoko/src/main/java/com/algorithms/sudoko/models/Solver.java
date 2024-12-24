@@ -13,21 +13,20 @@ public class Solver {
             this.sudokuBoard.getBoard()[i] = initialState[i].clone() ;
     }
 
-    public SudokuBoard getSudokuBoard() {
-        return sudokuBoard;
-    }
 
     public SudokuBoard getSudokuBoard() {
         return sudokuBoard;
     }
 
-    public void solve() {
+    public boolean solve() {
 
         this.initialDomainReduction();
         // initial arc consistency
-        new ArcConsistency(this.sudokuBoard).arcConsistency();
+        boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
+        if (!check) return false;
+        boolean solution = new CSP().backtrack(this.sudokuBoard);
         // apply back tracking
-        if (new CSP().backtrack(this.sudokuBoard)) {
+        if (solution) {
             System.out.println();
             for (int i = 0; i < 9; i++) {
                 System.out.println(Arrays.toString(this.sudokuBoard.getBoard()[i]));
@@ -35,6 +34,8 @@ public class Solver {
             System.out.println("Solved !!!!!!");
         } else
             System.out.println("Inconsistent input");
+
+        return solution;
     }
 
     /*
