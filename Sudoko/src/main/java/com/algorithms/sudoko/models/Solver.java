@@ -121,4 +121,7 @@ public class Solver {
         System.out.println("elapsed time : " + elapsed + " ms");
     }
 
+    public boolean haveOneSolution() {
+        return true;
+    }
 }
