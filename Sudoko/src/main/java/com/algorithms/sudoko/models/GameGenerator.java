@@ -12,7 +12,7 @@ public class GameGenerator {
     private Set<Integer>[] boxes = new Set[9];
     private int[][] board = new int[9][9];
     private int[][] solvedBoard = new int[9][9];
-    private int emptyCells;
+
     
     public GameGenerator(){
         Set<Integer> values = new HashSet<>(List.of(1,2,3,4,5,6,7,8,9));
@@ -23,39 +23,58 @@ public class GameGenerator {
         }
     }
 
-    public void build(Difficulty difficulty){
+    private void initialize(){
+        Set<Integer> values = new HashSet<>(List.of(1,2,3,4,5,6,7,8,9));
         for (int i = 0; i < 9; i++) {
-            this.board[0][i] = this.generateValue(0,i,0);
+            rows[i] = new HashSet<>(values);
+            columns[i] = new HashSet<>(values);
+            boxes[i] = new HashSet<>(values);
         }
-
-        for (int i = 1; i < 9; i++) {
-            this.board[i][0] = this.generateValue(i,0,1);
-        }
-
-        Solver solver = new Solver(board);
-        solver.solve();
-        this.board = solver.getSudokuBoard().getBoard();
-        this.solvedBoard = this.board;
-
-        if (difficulty == Difficulty.EASY)
-            this.deleteCells(40,46);
-
-        else if (difficulty == Difficulty.MEDIUM)
-            this.deleteCells(46,50);
-
-        else if (difficulty == Difficulty.DIFFICULT)
-            this.deleteCells(50,54);
-
-        else
-            this.deleteCells(54,58);
     }
 
-    private void deleteCells(int lower, int upper){
+    public void build(Difficulty difficulty){
+        boolean done = false;
+        while (!done){
+            this.board = new int[9][9];
+            this.initialize();
+            for (int i = 0; i < 9; i++) {
+                this.board[0][i] = this.generateValue(0,i,0);
+            }
+
+            for (int i = 1; i < 9; i++) {
+                this.board[i][0] = this.generateValue(i,0,1);
+            }
+
+            Solver solver = new Solver(board);
+            solver.solve();
+            this.board = solver.getSudokuBoard().getBoard();
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    this.solvedBoard[i][j] = this.board[i][j];
+                }
+            }
+
+
+            if (difficulty == Difficulty.EASY)
+                done = this.deleteCells(40, 46, 10);
+
+            else if (difficulty == Difficulty.MEDIUM)
+                done = this.deleteCells(46, 50, 13);
+
+            else if (difficulty == Difficulty.DIFFICULT)
+                done = this.deleteCells(50, 54, 15);
+
+            else
+                done = this.deleteCells(54, 58, 20);
+        }
+    }
+
+    private boolean deleteCells(int lower, int upper, int repeat){
         Random random = new Random();
-        this.emptyCells = random.nextInt(lower,upper);
+        int emptyCells = random.nextInt(lower,upper);
         int row1, row2 , col1, col2;
         int temp1, temp2;
-        while(this.emptyCells > 0){
+        while(emptyCells > 0 && repeat > 0){
             row1 = random.nextInt(9);
             col1 = random.nextInt(9);
             temp1 = this.board[row1][col1];
@@ -64,10 +83,14 @@ public class GameGenerator {
 
             this.board[row1][col1] = 0;
 
-            if(new Solver(this.board).solve())
-                this.emptyCells--;
+            if(new Solver(this.board).haveOneSolution())
+                emptyCells--;
             else{
                 this.board[row1][col1] = temp1;
+                System.out.println(1 + " - " + emptyCells + " - " + repeat);
+                repeat--;
+                if(lower > 53 && emptyCells < 5)
+                    break;
                 continue;
             }
 
@@ -76,17 +99,24 @@ public class GameGenerator {
             temp2 = this.board[row2][col2];
             this.board[row2][col2] = 0;
 
-            if(new Solver(this.board).solve())
-                this.emptyCells--;
+            if(new Solver(this.board).haveOneSolution())
+                emptyCells--;
             else{
                 this.board[row2][col2] = temp2;
                 this.board[row1][col1] = temp1;
-                this.emptyCells++;
-                continue;
+                System.out.println(2 + " - " + emptyCells + " - " + repeat);
+                emptyCells++;
+                repeat-=2;
+                if(lower > 53 && emptyCells <5)
+                    break;
             }
 
-
         }
+
+        if(repeat > 0)
+            return true;
+        else
+            return false;
 
     }
 
@@ -149,6 +179,7 @@ public class GameGenerator {
 
 
 
+
         System.out.println("=================================================");
         long start = System.currentTimeMillis() ;
         generator.build(Difficulty.EXTREMELY_DIFFICULT);
@@ -157,6 +188,14 @@ public class GameGenerator {
 
         System.out.println("=================================================");
         int[][] b = generator.getBoard();
+        for (int i = 0; i <9; i++) {
+            for (int j = 0; j <9; j++) {
+                System.out.print(b[i][j] + "\t");
+            }
+            System.out.println();
+        }
+        System.out.println("=================================================");
+         b = generator.getSolvedBoard();
         for (int i = 0; i <9; i++) {
             for (int j = 0; j <9; j++) {
                 System.out.print(b[i][j] + "\t");
