@@ -53,7 +53,8 @@ public class Main extends Application {
         dropDownDefficuly.setValue("Easy"); // Set default value
 
         // Create a ComboBox (drop-down list)
-        dropDownMode.getItems().addAll("Random", "Customized", "Human Solve");
+//        dropDownMode.getItems().addAll("Random", "Customized", "Human Solve");
+        dropDownMode.getItems().addAll("Random", "Customized");
         dropDownMode.setValue("Choose Mode"); // Set default value
         disableCells(scene);
         // Create a Button
@@ -67,29 +68,33 @@ public class Main extends Application {
             clearBoard(scene);
             String selectedValue = dropDownMode.getSelectionModel().getSelectedItem();
             this.mode = selectedValue;
-            if (selectedValue == "Customized" &&  bottomBox.getChildren().getFirst() == dropDownDefficuly && bottomBox.getChildren().getLast() == generateBoardButton){
-                bottomBox.getChildren().removeFirst();
-                bottomBox.getChildren().removeLast();
-            }
-            else if ((selectedValue == "Random" || selectedValue == "Human Solve") &&  bottomBox.getChildren().getFirst() != dropDownDefficuly){
-                bottomBox.getChildren().addFirst(dropDownDefficuly);
-            }
-            else if (selectedValue == "Human Solve" && bottomBox.getChildren().contains(actionButton)) {
-                bottomBox.getChildren().remove(actionButton);
-            }
-            if (selectedValue == "Customized" &&  !bottomBox.getChildren().contains(actionButton)) {
-                bottomBox.getChildren().add(actionButton);
+            if (selectedValue == "Customized") {
                 enableCells(scene);
+                if (bottomBox.getChildren().contains(dropDownDefficuly))
+                    bottomBox.getChildren().remove(dropDownDefficuly);
+                if (bottomBox.getChildren().contains(generateBoardButton))
+                    bottomBox.getChildren().remove(generateBoardButton);
+                if (!bottomBox.getChildren().contains(actionButton))
+                    bottomBox.getChildren().add(actionButton);
             }
-            else if (selectedValue == "Random" &&  !bottomBox.getChildren().contains(actionButton)){
+            else if (selectedValue == "Random"){
                 disableCells(scene);
-                bottomBox.getChildren().add(actionButton);
-                bottomBox.getChildren().add(generateBoardButton);
+                if (!bottomBox.getChildren().contains(dropDownDefficuly))
+                    bottomBox.getChildren().addFirst(dropDownDefficuly);
+                if (!bottomBox.getChildren().contains(actionButton))
+                    bottomBox.getChildren().add(actionButton);
+                if (!bottomBox.getChildren().contains(generateBoardButton))
+                    bottomBox.getChildren().add(generateBoardButton);
             }
-            else if ( selectedValue == "Human Solve"){
-                enableCells(scene);
-                bottomBox.getChildren().add(generateBoardButton);
-            }
+//            else if ( selectedValue == "Human Solve"){
+//                enableCells(scene);
+//                if (!bottomBox.getChildren().contains(dropDownDefficuly))
+//                    bottomBox.getChildren().addFirst(dropDownDefficuly);
+//                if (!bottomBox.getChildren().contains(generateBoardButton))
+//                    bottomBox.getChildren().add(generateBoardButton);
+//                if (bottomBox.getChildren().contains(actionButton))
+//                    bottomBox.getChildren().remove(actionButton);
+//            }
         });
         bottomBox.setPadding(new Insets(10));
         // Combine everything in a BorderPane
@@ -107,8 +112,11 @@ public class Main extends Application {
                     if (!state) {
                         if (!bottomBox.getChildren().contains(faildText))
                             bottomBox.getChildren().add(faildText);
+                        enableCells(scene);
                     }
                     else {
+                        if (bottomBox.getChildren().contains(faildText))
+                            bottomBox.getChildren().remove(faildText);
                         if (!bottomBox.getChildren().contains(succeededText))
                             bottomBox.getChildren().add(succeededText);
                         applyBoard(scene);
@@ -141,6 +149,7 @@ public class Main extends Application {
         });
 
         generateBoardButton.setOnAction(event->{
+            clearBoard(scene);
             enableCells(scene);
             this.isProgrammaticallyChanged = true;
             String selectedDifficulty = dropDownDefficuly.getValue();
@@ -207,12 +216,12 @@ public class Main extends Application {
                                     = 10; // dummy variable
                         }
                     }
-                    if (this.mode == "Human Solve" && cell.getCharacters().toString()!= "" && this.trueBoard[mapIDToX(Integer.parseInt(cell.getId()))]
+                    if (this.mode == "Random" && cell.getCharacters().toString()!= "" && this.trueBoard[mapIDToX(Integer.parseInt(cell.getId()))]
                             [mapIDToY(Integer.parseInt(cell.getId()))] != Integer.parseInt(cell.getCharacters().toString()) && !this.isProgrammaticallyChanged)
                         cell.setStyle("-fx-border-color: red; -fx-border-width: 1; -fx-border-style: solid; -fx-alignment: center;");
-                    else if (this.mode == "Human Solve" && cell.getCharacters().toString()!= "" && this.trueBoard[mapIDToX(Integer.parseInt(cell.getId()))]
+                    else if (this.mode == "Random" && cell.getCharacters().toString()!= "" && this.trueBoard[mapIDToX(Integer.parseInt(cell.getId()))]
                             [mapIDToY(Integer.parseInt(cell.getId()))] == Integer.parseInt(cell.getCharacters().toString()) && !this.isProgrammaticallyChanged)
-                        cell.setStyle("-fx-border-color: transparent; -fx-alignment: center;");
+                        cell.setStyle("-fx-border-color: green; -fx-border-width: 1; -fx-border-style: solid; -fx-alignment: center;");
                 });
                 cell.setPrefSize(80, 80); // Set size for the text field
                 cell.setStyle("-fx-alignment: center;"); // Center the text
@@ -270,6 +279,8 @@ public class Main extends Application {
                 else {
                     ((TextField) scene.lookup("#" + mapCoorToID(i, j))).setText(String.valueOf(this.board[i][j]));
                     ((TextField) scene.lookup("#" + mapCoorToID(i, j))).setDisable(true);
+                    ((TextField) scene.lookup("#" + mapCoorToID(i, j))).setStyle("-fx-border-color: green; -fx-border-width: 1; -fx-border-style: solid; -fx-alignment: center;");
+
                 }
             }
         }
