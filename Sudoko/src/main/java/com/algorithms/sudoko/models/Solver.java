@@ -6,13 +6,13 @@ import java.util.Collections;
 
 public class Solver {
 
-    private final SudokuBoard sudokuBoard ;
-    public Solver(int[][] initialState){
-        this.sudokuBoard = new SudokuBoard() ;
-        for(int i=0 ; i<9 ; i++)
-            this.sudokuBoard.getBoard()[i] = initialState[i].clone() ;
-    }
+    private final SudokuBoard sudokuBoard;
 
+    public Solver(int[][] initialState) {
+        this.sudokuBoard = new SudokuBoard();
+        for (int i = 0; i < 9; i++)
+            this.sudokuBoard.getBoard()[i] = initialState[i].clone();
+    }
 
     public SudokuBoard getSudokuBoard() {
         return sudokuBoard;
@@ -23,7 +23,8 @@ public class Solver {
         this.initialDomainReduction();
         // initial arc consistency
         boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
-        if (!check) return false;
+        if (!check)
+            return false;
         boolean solution = new CSP().backtrack(this.sudokuBoard);
         // apply back tracking
         if (solution) {
@@ -45,7 +46,7 @@ public class Solver {
      * For each pre-filled cell, remove all other values from its domain. For each
      * empty cell,
      * initialize its domain to [1, 2, 3, 4, 5, 6, 7, 8, 9]
-     *
+     * 
      * returns number of completed assignments.
      */
     private void initialDomainReduction() {
@@ -118,22 +119,39 @@ public class Solver {
         // {8,6,0,0,0,0,1,0,0},{0,1,0,0,0,5,8,0,0},{0,0,4,0,0,0,0,9,0}} ;
 
         // conflicting
-        int[][] initialState = new int[][] { { 0, 0, 0, 0, 7, 0, 0, 3, 5 }, { 0, 0, 0, 5, 9, 1, 0, 0, 6 },
-                { 0, 6, 0, 0, 0, 0, 8, 9, 0 },
-                { 3, 0, 0, 0, 6, 0, 0, 0, 8 }, { 1, 0, 0, 3, 0, 8, 0, 0, 4 }, { 6, 0, 0, 0, 2, 0, 0, 0, 7 },
-                { 0, 8, 2, 0, 0, 0, 0, 6, 0 }, { 5, 0, 0, 9, 1, 4, 0, 0, 0 }, { 9, 7, 0, 0, 8, 0, 0, 0, 0 } };
+        int[][] initialState = new int[][] { { 2, 9, 5, 7, 4, 3, 8, 6, 1 },
+                { 4, 3, 1, 8, 6, 5, 9, 0, 0 },
+                { 8, 7, 6, 1, 9, 2, 5, 4, 3 },
+                { 3, 8, 7, 4, 5, 9, 2, 1, 6 },
+                { 6, 1, 2, 3, 8, 7, 4, 9, 5 },
+                { 5, 4, 9, 2, 1, 6, 7, 3, 8 },
+                { 7, 6, 3, 5, 3, 4, 1, 8, 9 },
+                { 9, 2, 8, 6, 7, 1, 3, 5, 4 },
+                { 1, 5, 4, 9, 3, 8, 6, 0, 0 } };
 
-        new Solver(initialState).solve();
+        // 6 3 7 0 4 0 0 0 0
+        //// 8 0 0 0 0 6 0 3 7
+        //// 0 0 9 0 0 8 0 0 0
+        //// 4 0 0 0 0 2 0 0 0
+        //// 3 9 2 0 0 0 6 7 1
+        //// 0 0 0 1 0 0 0 0 4
+        //// 0 0 0 7 0 0 3 0 0
+        //// 9 6 0 4 0 0 0 0 2
+        //// 0 0 0 0 1 0 4 5 8
         long start = System.currentTimeMillis();
-        // for (int i = 0; i < 9; i++) {
-        // System.out.println(Arrays.toString(sudokuBoard.getBoard()[i]));
-        // }
+        for (int i = 0; i < 9; i++) {
+            System.out.println(Arrays.toString(initialState[i]));
+        }
+        // new Solver(initialState).solve();
 
+        System.out.println(new Solver(initialState).haveOneSolution());
         long elapsed = System.currentTimeMillis() - start;
         System.out.println("elapsed time : " + elapsed + " ms");
     }
 
     public boolean haveOneSolution() {
-        return true;
+        this.initialDomainReduction();
+        new ArcConsistency(this.sudokuBoard).arcConsistency();
+        return new CSP().isUnique(this.sudokuBoard);
     }
 }
