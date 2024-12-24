@@ -6,12 +6,19 @@ import java.util.Collections;
 
 public class Solver {
 
-    private SudokuBoard sudokuBoard;
+    private final SudokuBoard sudokuBoard ;
+    public Solver(int[][] initialState){
+        this.sudokuBoard = new SudokuBoard() ;
+        for(int i=0 ; i<9 ; i++)
+            this.sudokuBoard.getBoard()[i] = initialState[i].clone() ;
+    }
 
-    public Solver(int[][] initialState) {
-        this.sudokuBoard = new SudokuBoard();
-        for (int i = 0; i < 9; i++)
-            this.sudokuBoard.getBoard()[i] = initialState[i].clone();
+    public SudokuBoard getSudokuBoard() {
+        return sudokuBoard;
+    }
+
+    public SudokuBoard getSudokuBoard() {
+        return sudokuBoard;
     }
 
     public void solve() {
@@ -125,4 +132,7 @@ public class Solver {
         System.out.println("elapsed time : " + elapsed + " ms");
     }
 
+    public boolean haveOneSolution() {
+        return true;
+    }
 }
