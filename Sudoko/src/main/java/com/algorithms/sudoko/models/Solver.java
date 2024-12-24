@@ -17,7 +17,7 @@ public class Solver {
         return sudokuBoard;
     }
 
-    public void solve(){
+    public boolean solve(){
 
         this.initialDomainReduction() ;
         // initial arc consistency
@@ -29,9 +29,12 @@ public class Solver {
                 System.out.println(Arrays.toString(this.sudokuBoard.getBoard()[i]));
             }
             System.out.println("Solved !!!!!!");
+            return true;
         }
         else
             System.out.println("Inconsistent input");
+
+        return false;
     }
 
 

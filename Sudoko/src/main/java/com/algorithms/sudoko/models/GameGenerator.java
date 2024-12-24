@@ -64,25 +64,27 @@ public class GameGenerator {
 
             this.board[row1][col1] = 0;
 
-            if(new Solver(this.board).haveOneSolution())
+            if(new Solver(this.board).solve())
                 this.emptyCells--;
             else{
                 this.board[row1][col1] = temp1;
                 continue;
             }
 
-            row2 = (row1 + 8)%9;
-            col2 = (col1 + 8)%9;
+            row2 = 8-row1;
+            col2 = 8-col1;
             temp2 = this.board[row2][col2];
             this.board[row2][col2] = 0;
 
-            if(new Solver(this.board).haveOneSolution())
+            if(new Solver(this.board).solve())
                 this.emptyCells--;
             else{
                 this.board[row2][col2] = temp2;
                 this.board[row1][col1] = temp1;
                 this.emptyCells++;
+                continue;
             }
+
 
         }
 
@@ -93,7 +95,6 @@ public class GameGenerator {
         Set<Integer> row = this.rows[r];
         Set<Integer> col = this.columns[c];
         Set<Integer> box = this.boxes[b];
-        System.out.println("("+r+", "+c+")");
         int value = 0;
         Random random = new Random();
         for (int i = 0; i < 9; i++) {
@@ -150,13 +151,18 @@ public class GameGenerator {
 
         System.out.println("=================================================");
         long start = System.currentTimeMillis() ;
-        generator.build(Difficulty.EASY);
+        generator.build(Difficulty.EXTREMELY_DIFFICULT);
         long elapsed = System.currentTimeMillis()  - start ;
         System.out.println("elapsed time : " + elapsed + " ms");
 
         System.out.println("=================================================");
-
-
+        int[][] b = generator.getBoard();
+        for (int i = 0; i <9; i++) {
+            for (int j = 0; j <9; j++) {
+                System.out.print(b[i][j] + "\t");
+            }
+            System.out.println();
+        }
 
 
     }
