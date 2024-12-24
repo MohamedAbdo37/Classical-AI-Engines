@@ -9,7 +9,7 @@ import java.util.Collections;
 
 public class Solver {
 
-    private SudokuBoard sudokuBoard;
+    private final SudokuBoard sudokuBoard;
 
     public Solver(int[][] initialState) {
         this.sudokuBoard = new SudokuBoard();
@@ -17,7 +17,11 @@ public class Solver {
             this.sudokuBoard.getBoard()[i] = initialState[i].clone();
     }
 
-    public void solve() {
+    public SudokuBoard getSudokuBoard() {
+        return sudokuBoard;
+    }
+
+    public boolean solve() {
 
         this.initialDomainReduction();
 
@@ -33,11 +37,12 @@ public class Solver {
 
 
         // initial arc consistency
-        new ArcConsistency(this.sudokuBoard).arcConsistency();
-
+        boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
+        if (!check)
+            return false;
+        boolean solution = new CSP().backtrack(this.sudokuBoard);
         // apply back tracking
-
-        if (new CSP().backtrack(this.sudokuBoard)) {
+        if (solution) {
             System.out.println();
             for (int i = 0; i < 9; i++) {
                 System.out.println(Arrays.toString(this.sudokuBoard.getBoard()[i]));
@@ -45,6 +50,8 @@ public class Solver {
             System.out.println("Solved !!!!!!");
         } else
             System.out.println("Inconsistent input");
+
+        return solution;
     }
 
     /*
@@ -120,23 +127,39 @@ public class Solver {
         // {8,0,0,4,0,5,0,0,0},{0,0,0,0,7,0,0,0,0},{0,0,0,2,0,8,0,0,6},
         // {0,3,0,0,0,0,0,4,0},{0,0,2,0,0,0,6,0,0},{0,0,0,0,1,0,0,0,0}} ;
 
-//        // expert
-         int[][] initialState = new int[][]
-         {{0,0,0,0,0,0,0,0,8},{0,0,0,0,0,6,3,0,0},{0,0,2,0,9,0,0,7,0},
-         {0,0,0,7,0,0,0,5,0},{0,0,7,5,4,0,0,0,0},{0,3,0,0,0,1,0,0,0},
-         {8,6,0,0,0,0,1,0,0},{0,1,0,0,0,5,8,0,0},{0,0,4,0,0,0,0,9,0}} ;
-//
-//        // conflicting
-//        int[][] initialState = new int[][] { { 0, 0, 0, 0, 7, 0, 0, 3, 5 }, { 0, 0, 0, 5, 9, 1, 0, 0, 6 },
-//                { 0, 6, 0, 0, 0, 0, 8, 9, 0 },
-//                { 3, 0, 0, 0, 6, 0, 0, 0, 8 }, { 1, 0, 0, 3, 0, 8, 0, 0, 4 }, { 6, 0, 0, 0, 2, 0, 0, 0, 7 },
-//                { 0, 8, 2, 0, 0, 0, 0, 6, 0 }, { 5, 0, 0, 9, 1, 4, 0, 0, 0 }, { 9, 7, 0, 0, 8, 0, 0, 0, 0 } };
+        // expert
+        // int[][] initialState = new int[][]
+        // {{0,0,0,0,0,0,0,0,8},{0,0,0,0,0,6,3,0,0},{0,0,2,0,9,0,0,7,0},
+        // {0,0,0,7,0,0,0,5,0},{0,0,7,5,4,0,0,0,0},{0,3,0,0,0,1,0,0,0},
+        // {8,6,0,0,0,0,1,0,0},{0,1,0,0,0,5,8,0,0},{0,0,4,0,0,0,0,9,0}} ;
 
-        long start = System.currentTimeMillis();
+        // conflicting
+        int[][] initialState = new int[][] { { 2, 9, 5, 7, 4, 3, 8, 6, 1 },
+                { 4, 3, 1, 8, 6, 5, 9, 0, 0 },
+                { 8, 7, 6, 1, 9, 2, 5, 4, 3 },
+                { 3, 8, 7, 4, 5, 9, 2, 1, 6 },
+                { 6, 1, 2, 3, 8, 7, 4, 9, 5 },
+                { 5, 4, 9, 2, 1, 6, 7, 3, 8 },
+                { 7, 6, 3, 5, 3, 4, 1, 8, 9 },
+                { 9, 2, 8, 6, 7, 1, 3, 5, 4 },
+                { 1, 5, 4, 9, 3, 8, 6, 0, 0 } };
+
         new Solver(initialState).solve();
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 9; i++) {
+            System.out.println(Arrays.toString(initialState[i]));
+        }
+        // new Solver(initialState).solve();
+
+        System.out.println(new Solver(initialState).haveOneSolution());
         long elapsed = System.currentTimeMillis() - start;
         System.out.println("elapsed time : " + elapsed + " ms");
 
     }
 
+    public boolean haveOneSolution() {
+        this.initialDomainReduction();
+        new ArcConsistency(this.sudokuBoard).arcConsistency();
+        return new CSP().isUnique(this.sudokuBoard);
+    }
 }

@@ -9,6 +9,8 @@ import java.util.Comparator;
 
 class CSP {
 
+    private int uniqueSolution = 0;
+
     // helper class for rank values of variable according to LCV
     private class valueRank {
         private int value;
@@ -187,6 +189,50 @@ class CSP {
         Arrays.sort(valueRanks, Comparator.comparingInt(a -> a.countOfConstrainingVariables));
 
         return valueRanks;
+    }
+
+    public boolean isUnique(SudokuBoard sudokuBoard){
+        if (sudokuBoard.getCountOfCompletedAssignments() == 81) {
+            this.uniqueSolution++;
+            return true;
+        }
+
+        ArrayList<Integer> variable = MRV(sudokuBoard.getDomains()); // getting MRV
+        valueRank[] valueRanks = LCV(sudokuBoard , variable.get(0), variable.get(1)); // Sort values of variable according to LCV
+
+        // iterate over all values and testing them
+        for (valueRank rank : valueRanks) {
+
+            // clone board to pass it to recursive call to save original image for backtracking
+            SudokuBoard clonedObject = new SudokuBoard() ;
+            sudokuBoard.clone(clonedObject) ;
+
+            // clear domain and assign specific value to it
+            clonedObject.getDomains()[variable.get(0)][variable.get(1)].clear();
+            clonedObject.getDomains()[variable.get(0)][variable.get(1)].add(rank.getValue());
+
+            // if assignment is consistent then apply backtracking again
+            if (new ArcConsistency(clonedObject).arcConsistency()) {
+                // if backtracking returned true (game has been solved)
+                if (backtrack(clonedObject)) {
+                    if (this.uniqueSolution > 1)
+                        return false;
+                    sudokuBoard.getDomains()[variable.get(0)][variable.get(1)].remove(Integer.valueOf(rank.getValue()));
+                }
+                // if backtracking returned false (inconsistent assignment)
+                // remove that value from variable domain
+                else {
+                    sudokuBoard.getDomains()[variable.get(0)][variable.get(1)].remove(Integer.valueOf(rank.getValue()));
+                }
+            }
+            // if not consistent then remove that value from variable domain
+            else {
+                sudokuBoard.getDomains()[variable.get(0)][variable.get(1)].remove(Integer.valueOf(rank.getValue()));
+            }
+        }
+        if (this.uniqueSolution == 1)
+            return true;
+        return false;
     }
 
 }
