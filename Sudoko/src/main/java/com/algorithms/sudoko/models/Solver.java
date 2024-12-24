@@ -6,27 +6,21 @@ import java.util.Collections;
 
 public class Solver {
 
-    private final SudokuBoard sudokuBoard ;
-    public Solver(int[][] initialState){
-        this.sudokuBoard = new SudokuBoard() ;
-        for(int i=0 ; i<9 ; i++)
-            this.sudokuBoard.getBoard()[i] = initialState[i].clone() ;
+    private SudokuBoard sudokuBoard;
+
+    public Solver(int[][] initialState) {
+        this.sudokuBoard = new SudokuBoard();
+        for (int i = 0; i < 9; i++)
+            this.sudokuBoard.getBoard()[i] = initialState[i].clone();
     }
 
-
-    public SudokuBoard getSudokuBoard() {
-        return sudokuBoard;
-    }
-
-    public boolean solve() {
+    public void solve() {
 
         this.initialDomainReduction();
         // initial arc consistency
-        boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
-        if (!check) return false;
-        boolean solution = new CSP().backtrack(this.sudokuBoard);
+        new ArcConsistency(this.sudokuBoard).arcConsistency();
         // apply back tracking
-        if (solution) {
+        if (new CSP().backtrack(this.sudokuBoard)) {
             System.out.println();
             for (int i = 0; i < 9; i++) {
                 System.out.println(Arrays.toString(this.sudokuBoard.getBoard()[i]));
@@ -133,7 +127,4 @@ public class Solver {
         System.out.println("elapsed time : " + elapsed + " ms");
     }
 
-    public boolean haveOneSolution() {
-        return true;
-    }
 }
