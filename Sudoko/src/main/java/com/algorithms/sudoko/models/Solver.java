@@ -1,5 +1,8 @@
 package com.algorithms.sudoko.models;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +24,18 @@ public class Solver {
     public boolean solve() {
 
         this.initialDomainReduction();
+
+        // writing initial domains before applying arc consistency
+        String filename = "sudoku.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            writer.write("initial domains :\n");
+            new printingDomains(writer).printDomains(this.sudokuBoard.getDomains());
+        }
+        catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
+        }
+
+
         // initial arc consistency
         boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
         if (!check)
@@ -70,29 +85,29 @@ public class Solver {
 
     public static void main(String[] args) {
 
-        // lab game
-        // int[][] initialState = new int[][]
-        // {{7,9,0,0,1,3,6,0,0},{4,0,0,0,7,0,3,0,0},{1,0,0,2,4,0,9,7,5},
-        // {5,0,0,6,0,0,2,0,7},{0,7,0,0,0,1,8,0,0},{8,0,6,9,2,0,5,0,0},
-        // {6,0,1,0,0,2,0,5,3},{3,0,0,0,0,0,4,0,9},{0,2,4,0,3,5,0,0,0}} ;
+          // lab game
+//         int[][] initialState = new int[][]
+//         {{7,9,0,0,1,3,6,0,0},{4,0,0,0,7,0,3,0,0},{1,0,0,2,4,0,9,7,5},
+//         {5,0,0,6,0,0,2,0,7},{0,7,0,0,0,1,8,0,0},{8,0,6,9,2,0,5,0,0},
+//         {6,0,1,0,0,2,0,5,3},{3,0,0,0,0,0,4,0,9},{0,2,4,0,3,5,0,0,0}} ;
 
-        // // lecture
-        // int[][] initialState = new int[][]
-        // {{8,0,9,5,0,1,7,3,6},{2,0,7,0,6,3,0,0,0},{1,6,0,0,0,0,0,0,0},
-        // {0,0,0,0,9,0,4,0,7},{0,9,0,3,0,7,0,2,0},{7,0,6,0,8,0,0,0,0},
-        // {0,0,0,0,0,0,0,6,3},{0,0,0,9,3,0,5,0,2},{5,3,2,6,0,4,8,0,9}} ;
-
-        // empty game
-        // int[][] initialState = new int[][] { {0,0,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
-        // {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}} ;
-
-        // easy
-        // int[][] initialState = new int[][]
-        // {{8,0,9,2,0,1,0,7,4},{1,2,3,7,5,0,0,6,9},{5,0,4,8,9,6,3,1,0},
-        // {7,4,0,1,6,9,2,0,8},{0,1,0,0,8,0,7,9,0},{0,0,0,0,0,7,0,0,1},
-        // {0,0,0,6,7,8,9,0,3},{9,0,7,3,4,2,0,5,6},{2,3,0,0,0,0,4,8,7}} ;
+         // lecture
+//         int[][] initialState = new int[][]
+//         {{8,0,9,5,0,1,7,3,6},{2,0,7,0,6,3,0,0,0},{1,6,0,0,0,0,0,0,0},
+//         {0,0,0,0,9,0,4,0,7},{0,9,0,3,0,7,0,2,0},{7,0,6,0,8,0,0,0,0},
+//         {0,0,0,0,0,0,0,6,3},{0,0,0,9,3,0,5,0,2},{5,3,2,6,0,4,8,0,9}} ;
+//
+//        // empty game
+//        // int[][] initialState = new int[][] { {0,0,0,0,0,0,0,0,0},
+//        // {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
+//        // {0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
+//        // {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}} ;
+//
+         // easy
+//         int[][] initialState = new int[][]
+//         {{8,0,9,2,0,1,0,7,4},{1,2,3,7,5,0,0,6,9},{5,0,4,8,9,6,3,1,0},
+//         {7,4,0,1,6,9,2,0,8},{0,1,0,0,8,0,7,9,0},{0,0,0,0,0,7,0,0,1},
+//         {0,0,0,6,7,8,9,0,3},{9,0,7,3,4,2,0,5,6},{2,3,0,0,0,0,4,8,7}} ;
 
         // easy
         // int[][] initialState = new int[][]
@@ -100,7 +115,7 @@ public class Solver {
         // {3,0,0,0,6,0,0,0,8},{1,0,0,3,0,8,0,0,4},{6,0,0,0,2,0,0,0,7},
         // {0,8,2,0,0,0,0,6,0},{5,0,0,9,1,4,0,0,0},{9,7,0,0,8,0,0,0,0}} ;
 
-        // // medium
+        //  medium
         // int[][] initialState = new int[][]
         // {{0,0,6,0,2,0,3,0,0},{1,0,0,5,0,3,0,0,9},{0,0,4,6,0,8,1,0,0},
         // {0,0,9,2,0,1,8,0,0},{8,0,0,0,0,0,0,0,7},{0,0,2,8,0,7,6,0,0},
@@ -129,15 +144,7 @@ public class Solver {
                 { 9, 2, 8, 6, 7, 1, 3, 5, 4 },
                 { 1, 5, 4, 9, 3, 8, 6, 0, 0 } };
 
-        // 6 3 7 0 4 0 0 0 0
-        //// 8 0 0 0 0 6 0 3 7
-        //// 0 0 9 0 0 8 0 0 0
-        //// 4 0 0 0 0 2 0 0 0
-        //// 3 9 2 0 0 0 6 7 1
-        //// 0 0 0 1 0 0 0 0 4
-        //// 0 0 0 7 0 0 3 0 0
-        //// 9 6 0 4 0 0 0 0 2
-        //// 0 0 0 0 1 0 4 5 8
+        new Solver(initialState).solve();
         long start = System.currentTimeMillis();
         for (int i = 0; i < 9; i++) {
             System.out.println(Arrays.toString(initialState[i]));
@@ -147,6 +154,7 @@ public class Solver {
         System.out.println(new Solver(initialState).haveOneSolution());
         long elapsed = System.currentTimeMillis() - start;
         System.out.println("elapsed time : " + elapsed + " ms");
+
     }
 
     public boolean haveOneSolution() {
