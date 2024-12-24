@@ -35,7 +35,11 @@ public class GameGenerator {
         Solver solver = new Solver(board);
         solver.solve();
         this.board = solver.getSudokuBoard().getBoard();
-        this.solvedBoard = this.board;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                this.solvedBoard[i][j] = this.board[i][j];
+            }
+        }
 
         if (difficulty == Difficulty.EASY)
             this.deleteCells(40,46);

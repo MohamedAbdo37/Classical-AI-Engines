@@ -6,21 +6,27 @@ import java.util.Collections;
 
 public class Solver {
 
-    private SudokuBoard sudokuBoard;
-
-    public Solver(int[][] initialState) {
-        this.sudokuBoard = new SudokuBoard();
-        for (int i = 0; i < 9; i++)
-            this.sudokuBoard.getBoard()[i] = initialState[i].clone();
+    private final SudokuBoard sudokuBoard ;
+    public Solver(int[][] initialState){
+        this.sudokuBoard = new SudokuBoard() ;
+        for(int i=0 ; i<9 ; i++)
+            this.sudokuBoard.getBoard()[i] = initialState[i].clone() ;
     }
 
-    public void solve() {
+
+    public SudokuBoard getSudokuBoard() {
+        return sudokuBoard;
+    }
+
+    public boolean solve() {
 
         this.initialDomainReduction();
         // initial arc consistency
-        new ArcConsistency(this.sudokuBoard).arcConsistency();
+        boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
+        if (!check) return false;
+        boolean solution = new CSP().backtrack(this.sudokuBoard);
         // apply back tracking
-        if (new CSP().backtrack(this.sudokuBoard)) {
+        if (solution) {
             System.out.println();
             for (int i = 0; i < 9; i++) {
                 System.out.println(Arrays.toString(this.sudokuBoard.getBoard()[i]));
@@ -39,7 +45,7 @@ public class Solver {
      * For each pre-filled cell, remove all other values from its domain. For each
      * empty cell,
      * initialize its domain to [1, 2, 3, 4, 5, 6, 7, 8, 9]
-     * 
+     *
      * returns number of completed assignments.
      */
     private void initialDomainReduction() {
@@ -127,4 +133,7 @@ public class Solver {
         System.out.println("elapsed time : " + elapsed + " ms");
     }
 
+    public boolean haveOneSolution() {
+        return true;
+    }
 }
