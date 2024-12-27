@@ -10,6 +10,11 @@ import java.util.Comparator;
 class CSP {
 
     private int uniqueSolution = 0;
+    private boolean generate ;
+
+    public CSP(boolean generate) {
+        this.generate = generate;
+    }
 
     // helper class for rank values of variable according to LCV
     private class valueRank {
@@ -38,15 +43,15 @@ class CSP {
         // iterate over all values and testing them
         for (valueRank rank : valueRanks) {
 
-            // writing value enforced by backtracking
             String filename = "sudoku.txt";
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-                writer.write("cell " + (variable.get(0)+1) +"," + (variable.get(1)+1) +" has been enforced to " +rank.getValue() + ".\n");
+            if(!this.generate) {
+                // writing value enforced by backtracking
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                    writer.write("cell " + (variable.get(0) + 1) + "," + (variable.get(1) + 1) + " has been enforced to " + rank.getValue() + ".\n");
+                } catch (IOException e) {
+                    System.err.println("Error writing to file: " + e.getMessage());
+                }
             }
-            catch (IOException e) {
-                System.err.println("Error writing to file: " + e.getMessage());
-            }
-
 
             // clone board to pass it to recursive call to save original image for backtracking
             SudokuBoard clonedObject = new SudokuBoard() ;
@@ -57,16 +62,19 @@ class CSP {
             clonedObject.getDomains()[variable.get(0)][variable.get(1)].add(rank.getValue());
 
             // if assignment is consistent then apply backtracking again
-            if (new ArcConsistency(clonedObject).arcConsistency()) {
+            if (new ArcConsistency(clonedObject , this.generate).arcConsistency()) {
                 // if backtracking returned true (game has been solved)
                 if (backtrack(clonedObject)) {
                     clonedObject.clone(sudokuBoard) ;
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-                        writer.write("\nsolved !!!! " ) ;
+
+                    if(!this.generate) {
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                            writer.write("\nsolved !!!! ");
+                        } catch (IOException e) {
+                            System.err.println("Error writing to file: " + e.getMessage());
+                        }
                     }
-                    catch (IOException e) {
-                        System.err.println("Error writing to file: " + e.getMessage());
-                    }
+
                     return true;
                 }
                 // if backtracking returned false (inconsistent assignment)
@@ -74,15 +82,16 @@ class CSP {
                 else {
                     sudokuBoard.getDomains()[variable.get(0)][variable.get(1)].remove(Integer.valueOf(rank.getValue()));
 
-                    // writing domains after removing value from variable domain
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-                        writer.write("\nvalue "+rank.getValue()+" has been removed from cell "
-                                +(variable.get(0)+1) +"," + (variable.get(1)+1) +".\nDomains now are : \n");
-                        new printingDomains(writer).printDomains(sudokuBoard.getDomains());
-                        writer.write("\n");
-                    }
-                    catch (IOException e) {
-                        System.err.println("Error writing to file: " + e.getMessage());
+                    if(!this.generate) {
+                        // writing domains after removing value from variable domain
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                            writer.write("\nvalue " + rank.getValue() + " has been removed from cell "
+                                    + (variable.get(0) + 1) + "," + (variable.get(1) + 1) + ".\nDomains now are : \n");
+                            new printingDomains(writer).printDomains(sudokuBoard.getDomains());
+                            writer.write("\n");
+                        } catch (IOException e) {
+                            System.err.println("Error writing to file: " + e.getMessage());
+                        }
                     }
 
                 }
@@ -91,15 +100,16 @@ class CSP {
             else {
                 sudokuBoard.getDomains()[variable.get(0)][variable.get(1)].remove(Integer.valueOf(rank.getValue()));
 
-                // writing domains after removing value from variable domain
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-                    writer.write("\nvalue "+rank.getValue()+" has been removed from cell "
-                            +(variable.get(0)+1) +"," + (variable.get(1)+1) +".\nDomains now are : \n");
-                    new printingDomains(writer).printDomains(sudokuBoard.getDomains());
-                    writer.write("\n");
-                }
-                catch (IOException e) {
-                    System.err.println("Error writing to file: " + e.getMessage());
+                if(!this.generate) {
+                    // writing domains after removing value from variable domain
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                        writer.write("\nvalue " + rank.getValue() + " has been removed from cell "
+                                + (variable.get(0) + 1) + "," + (variable.get(1) + 1) + ".\nDomains now are : \n");
+                        new printingDomains(writer).printDomains(sudokuBoard.getDomains());
+                        writer.write("\n");
+                    } catch (IOException e) {
+                        System.err.println("Error writing to file: " + e.getMessage());
+                    }
                 }
 
             }
@@ -212,9 +222,9 @@ class CSP {
             clonedObject.getDomains()[variable.get(0)][variable.get(1)].add(rank.getValue());
 
             // if assignment is consistent then apply backtracking again
-            if (new ArcConsistency(clonedObject).arcConsistency()) {
-                // if backtracking returned true (game has been solved)
-                if (backtrack(clonedObject)) {
+            if (new ArcConsistency(clonedObject , this.generate).arcConsistency()) {
+               // if backtracking returned true (game has been solved)
+                if (this.backtrack(clonedObject)) {
                     if (this.uniqueSolution > 1)
                         return false;
                     sudokuBoard.getDomains()[variable.get(0)][variable.get(1)].remove(Integer.valueOf(rank.getValue()));

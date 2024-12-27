@@ -10,6 +10,11 @@ import java.util.Collections;
 public class Solver {
 
     private final SudokuBoard sudokuBoard;
+    private boolean generate = false ;
+
+    public void setGenerate(boolean generate) {
+        this.generate = generate;
+    }
 
     public Solver(int[][] initialState) {
         this.sudokuBoard = new SudokuBoard();
@@ -25,22 +30,22 @@ public class Solver {
 
         this.initialDomainReduction();
 
-        // writing initial domains before applying arc consistency
-        String filename = "sudoku.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            writer.write("initial domains :\n");
-            new printingDomains(writer).printDomains(this.sudokuBoard.getDomains());
+        if(!this.generate) {
+            // writing initial domains before applying arc consistency
+            String filename = "sudoku.txt";
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+                writer.write("initial domains :\n");
+                new printingDomains(writer).printDomains(this.sudokuBoard.getDomains());
+            } catch (IOException e) {
+                System.err.println("Error writing to file: " + e.getMessage());
+            }
         }
-        catch (IOException e) {
-            System.err.println("Error writing to file: " + e.getMessage());
-        }
-
 
         // initial arc consistency
-        boolean check = new ArcConsistency(this.sudokuBoard).arcConsistency();
+        boolean check = new ArcConsistency(this.sudokuBoard , this.generate).arcConsistency();
         if (!check)
             return false;
-        boolean solution = new CSP().backtrack(this.sudokuBoard);
+        boolean solution = new CSP(this.generate).backtrack(this.sudokuBoard);
         // apply back tracking
         if (solution) {
             System.out.println();
@@ -52,6 +57,12 @@ public class Solver {
             System.out.println("Inconsistent input");
 
         return solution;
+    }
+
+    public boolean haveOneSolution() {
+        this.initialDomainReduction();
+        new ArcConsistency(this.sudokuBoard , true).arcConsistency();
+        return new CSP(this.generate).isUnique(this.sudokuBoard);
     }
 
     /*
@@ -85,81 +96,53 @@ public class Solver {
 
     public static void main(String[] args) {
 
-          // lab game
-//         int[][] initialState = new int[][]
-//         {{7,9,0,0,1,3,6,0,0},{4,0,0,0,7,0,3,0,0},{1,0,0,2,4,0,9,7,5},
-//         {5,0,0,6,0,0,2,0,7},{0,7,0,0,0,1,8,0,0},{8,0,6,9,2,0,5,0,0},
-//         {6,0,1,0,0,2,0,5,3},{3,0,0,0,0,0,4,0,9},{0,2,4,0,3,5,0,0,0}} ;
+        // empty game
+//         int[][] initialState = new int[][] { {0,0,0,0,0,0,0,0,0},
+//         {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
+//         {0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
+//         {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}} ;
 
-         // lecture
-//         int[][] initialState = new int[][]
-//         {{8,0,9,5,0,1,7,3,6},{2,0,7,0,6,3,0,0,0},{1,6,0,0,0,0,0,0,0},
-//         {0,0,0,0,9,0,4,0,7},{0,9,0,3,0,7,0,2,0},{7,0,6,0,8,0,0,0,0},
-//         {0,0,0,0,0,0,0,6,3},{0,0,0,9,3,0,5,0,2},{5,3,2,6,0,4,8,0,9}} ;
-//
-//        // empty game
-//        // int[][] initialState = new int[][] { {0,0,0,0,0,0,0,0,0},
-//        // {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
-//        // {0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0},
-//        // {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0}} ;
-//
          // easy
 //         int[][] initialState = new int[][]
 //         {{8,0,9,2,0,1,0,7,4},{1,2,3,7,5,0,0,6,9},{5,0,4,8,9,6,3,1,0},
 //         {7,4,0,1,6,9,2,0,8},{0,1,0,0,8,0,7,9,0},{0,0,0,0,0,7,0,0,1},
 //         {0,0,0,6,7,8,9,0,3},{9,0,7,3,4,2,0,5,6},{2,3,0,0,0,0,4,8,7}} ;
 
-        // easy
-        // int[][] initialState = new int[][]
-        // {{0,0,0,0,7,0,0,3,5},{0,0,0,5,9,1,0,0,6},{0,6,0,0,0,0,8,9,0},
-        // {3,0,0,0,6,0,0,0,8},{1,0,0,3,0,8,0,0,4},{6,0,0,0,2,0,0,0,7},
-        // {0,8,2,0,0,0,0,6,0},{5,0,0,9,1,4,0,0,0},{9,7,0,0,8,0,0,0,0}} ;
 
-        //  medium
-        // int[][] initialState = new int[][]
-        // {{0,0,6,0,2,0,3,0,0},{1,0,0,5,0,3,0,0,9},{0,0,4,6,0,8,1,0,0},
-        // {0,0,9,2,0,1,8,0,0},{8,0,0,0,0,0,0,0,7},{0,0,2,8,0,7,6,0,0},
-        // {0,0,5,9,0,6,2,0,0},{9,0,0,3,0,2,0,0,8},{0,0,3,0,1,0,5,0,0}} ;
+        // medium game
+//         int[][] initialState = new int[][] { {7,0,0,9,0,3,4,6,0},
+//         {3,6,9,4,0,0,0,8,0}, {2,0,8,0,1,0,0,0,5},
+//         {5,0,6,3,0,0,0,1,0},{0,0,7,0,0,0,2,0,0}, {0,8,0,0,0,2,6,0,9},
+//         {6,0,0,0,7,0,8,0,1}, {0,7,0,0,0,6,5,4,3}, {0,5,4,2,0,8,0,0,6}} ;
 
-        // hard
-        // int[][] initialState = new int[][]
-        // {{0,0,0,0,8,0,0,0,0},{0,0,6,0,0,0,3,0,0},{0,9,0,0,0,0,0,7,0},
-        // {8,0,0,4,0,5,0,0,0},{0,0,0,0,7,0,0,0,0},{0,0,0,2,0,8,0,0,6},
-        // {0,3,0,0,0,0,0,4,0},{0,0,2,0,0,0,6,0,0},{0,0,0,0,1,0,0,0,0}} ;
+        // hard game
+//         int[][] initialState = new int[][] { {3,0,0,2,0,0,9,7,0},
+//         {4,0,0,8,9,0,0,0,6}, {0,0,0,1,0,0,0,4,0},
+//         {1,6,0,0,0,4,7,0,0},{0,0,0,0,0,0,0,0,0}, {0,0,7,6,0,0,0,2,8},
+//         {0,3,0,0,0,6,0,0,0}, {8,0,0,0,7,2,0,0,9}, {0,9,5,0,0,8,0,0,7}} ;
 
-        // expert
-        // int[][] initialState = new int[][]
-        // {{0,0,0,0,0,0,0,0,8},{0,0,0,0,0,6,3,0,0},{0,0,2,0,9,0,0,7,0},
-        // {0,0,0,7,0,0,0,5,0},{0,0,7,5,4,0,0,0,0},{0,3,0,0,0,1,0,0,0},
-        // {8,6,0,0,0,0,1,0,0},{0,1,0,0,0,5,8,0,0},{0,0,4,0,0,0,0,9,0}} ;
 
-        // conflicting
-        int[][] initialState = new int[][] { { 2, 9, 5, 7, 4, 3, 8, 6, 1 },
-                { 4, 3, 1, 8, 6, 5, 9, 0, 0 },
-                { 8, 7, 6, 1, 9, 2, 5, 4, 3 },
-                { 3, 8, 7, 4, 5, 9, 2, 1, 6 },
-                { 6, 1, 2, 3, 8, 7, 4, 9, 5 },
-                { 5, 4, 9, 2, 1, 6, 7, 3, 8 },
-                { 7, 6, 3, 5, 3, 4, 1, 8, 9 },
-                { 9, 2, 8, 6, 7, 1, 3, 5, 4 },
-                { 1, 5, 4, 9, 3, 8, 6, 0, 0 } };
+        //expert game
+//         int[][] initialState = new int[][] { {0,4,3,0,5,0,2,0,7},
+//         {0,2,0,0,0,4,0,0,6}, {7,0,0,0,0,0,0,0,0},
+//         {0,0,7,0,1,0,6,0,0},{0,1,0,6,0,8,0,7,0}, {0,0,6,0,9,0,8,0,0},
+//         {0,0,0,0,0,0,0,0,9}, {5,0,0,9,0,0,0,8,0}, {6,0,1,0,7,0,5,2,0}} ;
 
-        new Solver(initialState).solve();
+
+        // extremely hard game
+         int[][] initialState = new int[][] { {0,0,4,0,0,7,0,0,0},
+         {0,9,0,0,0,0,0,6,0}, {0,0,0,0,5,0,0,0,0},
+         {8,0,0,0,0,0,7,0,0},{0,1,0,9,0,0,0,0,0}, {5,0,0,0,0,0,0,0,0},
+         {0,2,0,0,0,0,9,0,1}, {7,0,0,0,8,0,0,0,0}, {0,0,0,6,0,0,0,5,0}} ;
+
+
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 9; i++) {
-            System.out.println(Arrays.toString(initialState[i]));
-        }
-        // new Solver(initialState).solve();
-
-        System.out.println(new Solver(initialState).haveOneSolution());
+        new Solver(initialState).solve();
+        //System.out.println(new Solver(initialState).haveOneSolution());
         long elapsed = System.currentTimeMillis() - start;
         System.out.println("elapsed time : " + elapsed + " ms");
 
     }
 
-    public boolean haveOneSolution() {
-        this.initialDomainReduction();
-        new ArcConsistency(this.sudokuBoard).arcConsistency();
-        return new CSP().isUnique(this.sudokuBoard);
-    }
+
 }

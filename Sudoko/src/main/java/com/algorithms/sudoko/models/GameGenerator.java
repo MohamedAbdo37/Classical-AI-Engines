@@ -45,6 +45,7 @@ public class GameGenerator {
             }
 
             Solver solver = new Solver(board);
+            solver.setGenerate(true);
             solver.solve();
             this.board = solver.getSudokuBoard().getBoard();
             for (int i = 0; i < 9; i++) {
@@ -81,7 +82,10 @@ public class GameGenerator {
 
             this.board[row1][col1] = 0;
 
-            if (new Solver(this.board).haveOneSolution())
+            Solver solver = new Solver(this.board) ;
+            solver.setGenerate(true);
+
+            if (solver.haveOneSolution())
                 emptyCells--;
             else {
                 this.board[row1][col1] = temp1;
@@ -97,7 +101,10 @@ public class GameGenerator {
             temp2 = this.board[row2][col2];
             this.board[row2][col2] = 0;
 
-            if (new Solver(this.board).haveOneSolution())
+            solver = new Solver(this.board) ;
+            solver.setGenerate(true);
+
+            if (solver.haveOneSolution())
                 emptyCells--;
             else {
                 this.board[row2][col2] = temp2;

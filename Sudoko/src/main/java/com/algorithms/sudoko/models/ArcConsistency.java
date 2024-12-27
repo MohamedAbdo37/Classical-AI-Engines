@@ -7,9 +7,11 @@ import java.util.*;
 class ArcConsistency {
 
     private SudokuBoard sudokuBoard ;
+    private boolean generate ;
 
-    protected ArcConsistency(SudokuBoard sudokuBoard) {
+    protected ArcConsistency(SudokuBoard sudokuBoard , boolean generate) {
         this.sudokuBoard = sudokuBoard;
+        this.generate = generate ;
     }
 
     private boolean addAgain = false;
@@ -35,17 +37,18 @@ class ArcConsistency {
             if (this.Revise(arc)){
 
                 if(this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].isEmpty()) { // inconsistent -> return false
-                    // writing domains after applying arc consistency
-                    String filename = "sudoku.txt";
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-                        writer.write("\n\n\ncell " + (arc.getSourceRow()+1) + "," + (arc.getSourceCol()+1) + " became in consistent"
+
+                    if(!this.generate) {
+                        // writing domains after applying arc consistency
+                        String filename = "sudoku.txt";
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                            writer.write("\n\n\ncell " + (arc.getSourceRow() + 1) + "," + (arc.getSourceCol() + 1) + " became in consistent"
                                     + " so arc consistency has been broken.\n");
-                    }
-                    catch (IOException e) {
-                        System.err.println("Error writing to file: " + e.getMessage());
+                        } catch (IOException e) {
+                            System.err.println("Error writing to file: " + e.getMessage());
+                        }
                     }
 
-                    //System.out.println(arc);
                     return false;
                 }
 
@@ -61,17 +64,17 @@ class ArcConsistency {
 
         }
 
-        // writing domains after applying arc consistency
-        String filename = "sudoku.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-            writer.write("\n\ndomains after applying arc consistency are : \n");
-            new printingDomains(writer).printDomains(this.sudokuBoard.getDomains());
-            writer.write("\n");
+        if(!this.generate) {
+            // writing domains after applying arc consistency
+            String filename = "sudoku.txt";
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                writer.write("\n\ndomains after applying arc consistency are : \n");
+                new printingDomains(writer).printDomains(this.sudokuBoard.getDomains());
+                writer.write("\n");
+            } catch (IOException e) {
+                System.err.println("Error writing to file: " + e.getMessage());
+            }
         }
-        catch (IOException e) {
-            System.err.println("Error writing to file: " + e.getMessage());
-        }
-
         this.updateSudokuGrid();
         return true ;
     }
@@ -94,15 +97,16 @@ class ArcConsistency {
             // if no value y in Dj allows (x,y) to satisfy the constraint between Xi and Xj then delete x from Di
             if(!thereIsMatchInY){
 
-                // writing domains reduction
-                String filename = "sudoku.txt";
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename , true))) {
-                    writer.write("\nvalue "+ this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].get(i)
-                        + " has been removed from cell " + (arc.getSourceRow()+1) + "," + (arc.getSourceCol()+1) +" domain"
-                        + " because of cell " + (arc.getDestinationRow()+1) + "," + (arc.getDestinationCol()+1) +" domain.");
-                }
-                catch (IOException e) {
-                    System.err.println("Error writing to file: " + e.getMessage());
+                if(!this.generate) {
+                    // writing domains reduction
+                    String filename = "sudoku.txt";
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+                        writer.write("\nvalue " + this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].get(i)
+                                + " has been removed from cell " + (arc.getSourceRow() + 1) + "," + (arc.getSourceCol() + 1) + " domain"
+                                + " because of cell " + (arc.getDestinationRow() + 1) + "," + (arc.getDestinationCol() + 1) + " domain.");
+                    } catch (IOException e) {
+                        System.err.println("Error writing to file: " + e.getMessage());
+                    }
                 }
 
                 this.sudokuBoard.getDomains()[arc.getSourceRow()][arc.getSourceCol()].remove(i) ;
